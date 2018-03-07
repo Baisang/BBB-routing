@@ -1,0 +1,18 @@
+version: '3'
+
+services:
+  mdb:
+    image: mongo:3.4.3
+    ports:
+      - 27017:27017
+    command: mongod --replSet=bigchain-rs
+    volumes:
+      - /data/db:/data/db
+
+  bdb:
+    image: bigchaindb/bigchaindb
+    volumes:
+      - .:/data
+    ports:
+      - 9984:9984
+    command: start
