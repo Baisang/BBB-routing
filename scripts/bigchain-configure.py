@@ -6,17 +6,21 @@ import sys
 
 from bigchaindb_driver.crypto import generate_keypair
 
+dir = os.path.dirname(__file__)
+build_dir = os.path.join(dir, '../build')
+config_path = os.path.join(build_dir, '.bigchaindb')
 
 def generate_config(args):
     keypair = generate_keypair()
-    with open('../bigchaindb-config.template', 'r') as template:
+    template_path = os.path.join(dir, '../bigchaindb-config.template')
+    with open(template_path, 'r') as template:
         d = json.load(template)
         d['keypair']['private'] = keypair.private_key
         d['keypair']['public'] = keypair.public_key
 
-    if not os.path.exists('../build'):
-        os.makedirs('../build')
-    with open('../build/.bigchaindb', 'w') as config:
+    if not os.path.exists(build_dir):
+        os.makedirs(build_dir)
+    with open(config_path, 'w') as config:
         json.dump(d, config, indent=4, sort_keys=True)
     print('Successfully generated config file .bigchaindb')
 
@@ -24,7 +28,7 @@ def generate_config(args):
 def add_keyring(args):
     public_key = args.public_key
 
-    with open('../build/.bigchaindb', 'r') as config:
+    with open(config_path, 'r') as config:
         d = json.load(config)
 
     # Ensure that public_key to add is not already the node's public_key
@@ -38,7 +42,7 @@ def add_keyring(args):
 
     d['keyring'].append(public_key)
 
-    with open('../build/.bigchaindb', 'w') as config:
+    with open(config_path, 'w') as config:
         json.dump(d, config, indent=4, sort_keys=True)
     print('Successfully added public_key to keyring')
 
