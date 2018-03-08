@@ -7,12 +7,12 @@ services:
       - 27017:27017
     command: mongod --replSet=bigchain-rs
     volumes:
-      - /data/db:/data/db
+      - ./mongod:/data/db
 
   bdb:
     image: bigchaindb/bigchaindb
     volumes:
-      - .:/data
+      - ./build:/data
     ports:
       - 9984:9984
     command: start
