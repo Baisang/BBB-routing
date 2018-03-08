@@ -1,0 +1,53 @@
+{
+    "database": {
+        "ca_cert": null,
+        "max_tries": 3,
+        "password": null,
+        "name": "bigchain",
+        "replicaset": "bigchain-rs",
+        "backend": "mongodb",
+        "keyfile_passphrase": null,
+        "ssl": false,
+        "certfile": null,
+        "connection_timeout": 5000,
+        "login": null,
+        "crlfile": null,
+        "port": 27017,
+        "keyfile": null,
+        "host": "mdb"
+    },
+    "wsserver": {
+        "advertised_scheme": "ws",
+        "scheme": "ws",
+        "advertised_host": "localhost",
+        "advertised_port": 9985,
+        "port": 9985,
+        "host": "localhost"
+    },
+    "server": {
+        "workers": null,
+        "bind": "0.0.0.0:9984",
+        "loglevel": "info"
+    },
+    "log": {
+        "datefmt_console": "%Y-%m-%d %H:%M:%S",
+        "datefmt_logfile": "%Y-%m-%d %H:%M:%S",
+        "file": "/data/bigchaindb.log",
+        "fmt_console": "[%(asctime)s] [%(levelname)s] (%(name)s) %(message)s (%(processName)-10s - pid: %(process)d)",
+        "level_console": "info",
+        "level_logfile": "info",
+        "granular_levels": {},
+        "error_file": "/data/bigchaindb-errors.log",
+        "fmt_logfile": "[%(asctime)s] [%(levelname)s] (%(name)s) %(message)s (%(processName)-10s - pid: %(process)d)",
+        "port": 9020
+    },
+    "keyring": [],
+    "keypair": {
+        "private": "change_me",
+        "public": "change_me"
+    },
+    "graphite": {
+        "host": "localhost"
+    },
+    "backlog_reassign_delay": 120
+}
