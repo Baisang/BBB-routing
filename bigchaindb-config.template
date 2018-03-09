@@ -14,7 +14,7 @@
         "crlfile": null,
         "port": 27017,
         "keyfile": null,
-        "host": "mdb"
+        "host": "change_me"
     },
     "wsserver": {
         "advertised_scheme": "ws",

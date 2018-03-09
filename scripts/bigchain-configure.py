@@ -2,6 +2,7 @@
 import argparse
 import json
 import os
+import subprocess
 import sys
 
 from bigchaindb_driver.crypto import generate_keypair
@@ -13,10 +14,15 @@ config_path = os.path.join(build_dir, '.bigchaindb')
 def generate_config(args):
     keypair = generate_keypair()
     template_path = os.path.join(dir, '../bigchaindb-config.template')
+    # Get the IP address for the default interface
+    # For OCF machines, this will be the first IP address returned.
+    ip_addr = subprocess.check_output(['hostname', '--all-ip-addresses'])
+    ip_addr = ip_addr.split()[0].decode('utf-8')
     with open(template_path, 'r') as template:
         d = json.load(template)
         d['keypair']['private'] = keypair.private_key
         d['keypair']['public'] = keypair.public_key
+        d['database']['host'] = ip_addr
 
     if not os.path.exists(build_dir):
         os.makedirs(build_dir)
