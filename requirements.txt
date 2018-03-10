@@ -5,12 +5,18 @@ async-timeout==2.0.0
 base58==0.2.5
 BigchainDB==1.0.1
 bigchaindb-driver==0.4.1
+cached-property==1.4.0
 certifi==2018.1.18
 cffi==1.11.5
 chardet==3.0.4
 click==6.7
 cryptoconditions==0.6.0.dev1
 cryptography==1.9
+docker==2.7.0
+docker-compose==1.19.0
+docker-pycreds==0.2.2
+dockerpty==0.4.1
+docopt==0.6.2
 Flask==0.12.2
 Flask-Cors==3.0.3
 Flask-RESTful==0.3.6
@@ -38,6 +44,8 @@ requests==2.18.4
 rethinkdb==2.3.0.post6
 six==1.11.0
 statsd==3.2.1
+texttable==0.9.1
 urllib3==1.22
+websocket-client==0.47.0
 Werkzeug==0.14.1
 yarl==1.1.1
