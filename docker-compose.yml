@@ -6,8 +6,6 @@ services:
     ports:
       - 27017:27017
     command: mongod --replSet=bigchain-rs
-    volumes:
-      - ./mongod:/data/db
 
   bdb:
     image: bigchaindb/bigchaindb
