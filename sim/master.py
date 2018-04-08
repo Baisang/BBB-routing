@@ -27,7 +27,7 @@ class MasterRouter(object):
                 socket.gethostbyname(socket.getfqdn()),
                 host,
                 BBBPacketType.ROUTEUPDATE,
-                json.dumps(routes).encode()
+                json.dumps(routes)
             )
             self.socket.sendall(route_packet.to_bytes())
 

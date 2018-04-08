@@ -13,13 +13,13 @@ class BBBPacketType(Enum):
     """
     Enum for different BBBPacket types
     ROUTEUPDATE:    Upadtes about network topology
-    PAYLOAD:        Raw data to be delivered
+    PAYLOAD:        payload string
     """
     ROUTEUPDATE = 1
     PAYLOAD = 2
 
 PUBLIC_ENUMS = {
-    'Type', BBBPacketType
+    "Type": BBBPacketType
 }
 
 # JSON encoding and decoding helpers
