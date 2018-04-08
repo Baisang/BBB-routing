@@ -2,7 +2,7 @@ import select
 import socket
 import sys
 import json
-from enum import Enum, auto
+from enum import Enum
 
 
 DEBUG = True
@@ -15,8 +15,8 @@ class BBBPacketType(Enum):
     ROUTEUPDATE:    Upadtes about network topology
     PAYLOAD:        Raw data to be delivered
     """
-    ROUTEUPDATE = auto()
-    PAYLOAD = auto()
+    ROUTEUPDATE = 1
+    PAYLOAD = 2
 
 
 class BBBPacket(object):
