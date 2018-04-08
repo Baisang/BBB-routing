@@ -18,7 +18,25 @@ class BBBPacketType(Enum):
     ROUTEUPDATE = 1
     PAYLOAD = 2
 
+PUBLIC_ENUMS = {
+    'Type', BBBPacketType
+}
 
+# JSON encoding and decoding helpers
+class BBBPacketEncoder(json.JSONEncoder):
+    def default(self, obj):
+        if type(obj) in PUBLIC_ENUMS.values():
+            return {"__enum__": str(obj)}
+        return json.JSONEncoder.default(self, obj)
+
+def as_enum(d):
+    if "__enum__" in d:
+        name, member = d["__enum__"].split(".")
+        return getattr(PUBLIC_ENUMS[name], member)
+    else:
+        return d
+
+# Packet class for BBB Routing
 class BBBPacket(object):
     def __init__(self, src, dst, type, payload):
         """
@@ -40,11 +58,11 @@ class BBBPacket(object):
         json_serialization = json.dumps({
             "type": self.type,
             "payload": self.payload
-        })
+        }, cls=BBBPacketEncoder)
         return json_serialization.encode()
 
     @classmethod
-    def from_bytes(cls, bytes):
+    def from_bytes(cls, bytes, object_hook=as_enum):
         """
         @bytes      byte representation of this class
         @return     BBBPacket instance corresponding to bytes

@@ -1,7 +1,10 @@
 import socket
 import json
 
-from base import ROUTER_PORT
+from base import (
+    BBBPacket, BBBPacketType,
+    ROUTER_PORT
+)
 from os.path import join as path_join
 
 
@@ -21,6 +24,8 @@ class MasterRouter(object):
         for host, routes in self.topology.items():
             self.socket.connect((host, ROUTER_PORT))
             route_packet = BBBPacket(
+                socket.gethostbyname(socket.getfqdn()),
+                host,
                 BBBPacketType.ROUTEUPDATE,
                 json.dumps(routes).encode()
             )

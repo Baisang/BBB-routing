@@ -1,5 +1,5 @@
 from base import (
-    BBBPacketType, BBBPacket, RouterBase,
+    BBBPacket, BBBPacketType, RouterBase,
     PACKET_LEN, ROUTER_PORT
 )
 import socket
