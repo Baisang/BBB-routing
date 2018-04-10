@@ -4,6 +4,8 @@ from base import (
 )
 import socket
 import threading
+import time
+import json
 
 class BasicRouter(RouterBase):
     def __init__(self, address=""):
@@ -11,6 +13,7 @@ class BasicRouter(RouterBase):
         threading.Thread(
             target=self.accept_connections
         ).start()
+        # self.accept_connections()
 
     def accept_connections(self):
         while True:
@@ -20,16 +23,16 @@ class BasicRouter(RouterBase):
                 target=self.handle_client,
                 args=(client, address)
             ).start()
+            time.sleep(10)
 
     def handle_client(self, client_socket, address):
         while True:
             try:
                 data = client_socket.recv(PACKET_LEN)
-                print("received {0}".format(data))
                 if data:
                     packet = BBBPacket.from_bytes(data)
                     if packet.type == BBBPacketType.ROUTEUPDATE:
-                        self.routes.update(packet.payload)
+                        self.routes.update(json.loads(packet.payload))
                     print(self.routes)
                 else:
                     raise error('Client disconnected')

@@ -19,7 +19,7 @@ class BBBPacketType(Enum):
     PAYLOAD = 2
 
 PUBLIC_ENUMS = {
-    "Type": BBBPacketType
+    'BBBPacketType': BBBPacketType
 }
 
 # JSON encoding and decoding helpers
@@ -44,7 +44,7 @@ class BBBPacket(object):
         @src                    address of source
         @dest                   address of destination
         @type BBBPacketType     A BBBPacket Type
-        @payload                raw data in bytes
+        @payload                string payload
         """
         self.src = src
         self.dst = dst
@@ -56,6 +56,8 @@ class BBBPacket(object):
         @return     byte representation of this class
         """
         json_serialization = json.dumps({
+            "src": self.src,
+            "dst": self.dst,
             "type": self.type,
             "payload": self.payload
         }, cls=BBBPacketEncoder)
@@ -67,7 +69,7 @@ class BBBPacket(object):
         @bytes      byte representation of this class
         @return     BBBPacket instance corresponding to bytes
         """
-        data = json.loads(bytes.decode())
+        data = json.loads(bytes.decode(), object_hook=as_enum)
         return cls(**data)
 
 
