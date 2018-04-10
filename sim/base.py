@@ -68,7 +68,7 @@ class BBBPacket(object):
         @return     BBBPacket instance corresponding to bytes
         """
         data = json.loads(bytes.decode())
-        return BBBPacket(**data)
+        return cls(**data)
 
 
 class RouterBase(object):

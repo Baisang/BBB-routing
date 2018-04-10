@@ -27,9 +27,10 @@ class BasicRouter(RouterBase):
                 data = client_socket.recv(PACKET_LEN)
                 print("received {0}".format(data))
                 if data:
-                    # Set the response to echo back the recieved data
-                    response = data
-                    client_socket.send(response)
+                    packet = BBBPacket.from_bytes(data)
+                    if packet.type == BBBPacketType.ROUTEUPDATE:
+                        self.routes.update(packet.payload)
+                    print(self.routes)
                 else:
                     raise error('Client disconnected')
             except:
