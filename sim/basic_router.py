@@ -13,7 +13,6 @@ class BasicRouter(RouterBase):
         threading.Thread(
             target=self.accept_connections
         ).start()
-        # self.accept_connections()
 
     def accept_connections(self):
         while True:
