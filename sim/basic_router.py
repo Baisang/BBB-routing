@@ -6,10 +6,11 @@ import socket
 import threading
 import time
 import json
+import sys
 
 
 class BasicRouter(RouterBase):
-    def __init__(self, address=""):
+    def __init__(self, address):
         super().__init__(address)
         threading.Thread(
             target=self.accept_connections
@@ -20,7 +21,7 @@ class BasicRouter(RouterBase):
 
     def update_neighbors(self):
         while True:
-            print("updating neighbors")
+            print("updating neighbors {0}".format(self.neighbors))
             route_updates = {
                 n: [d for d in self.routes if self.routes[d] != n]
                 for n in self.neighbors
@@ -37,7 +38,7 @@ class BasicRouter(RouterBase):
                         neighbor_socket.connect((neighbor, ROUTER_PORT))
                         self.sockets[neighbor] = neighbor_socket
                     route_packet = BBBPacket(
-                        src=neighbor_socket.getsockname()[0],
+                        src=self.address,
                         dst=neighbor,
                         type=BBBPacketType.ROUTEUPDATE,
                         payload=json.dumps(routes),
@@ -79,4 +80,7 @@ class BasicRouter(RouterBase):
                 return False
 
 if __name__ == "__main__":
-    BasicRouter()
+    if len(sys.argv) == 2:
+        BasicRouter(sys.argv[1])
+    else:
+        print("please run python3 basic_router.py <local-IP>")

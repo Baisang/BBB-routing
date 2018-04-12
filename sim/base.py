@@ -95,6 +95,8 @@ class RouterBase(object):
         self.socket = socket.socket()
         self.socket.bind((address, ROUTER_PORT))
         self.socket.listen()
+        self.address = address
+        print("starting server on {0}:{1}".format(address, ROUTER_PORT))
 
     def update_routes(packet):
         self.routes.update(packet.payload)
