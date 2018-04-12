@@ -7,6 +7,7 @@ import threading
 import time
 import json
 
+
 class BasicRouter(RouterBase):
     def __init__(self, address=""):
         super().__init__(address)
@@ -28,14 +29,16 @@ class BasicRouter(RouterBase):
         while True:
             try:
                 data = client_socket.recv(PACKET_LEN)
-                if data:
-                    packet = BBBPacket.from_bytes(data)
-                    if packet.type == BBBPacketType.ROUTEUPDATE:
-                        self.routes.update(json.loads(packet.payload))
+                if not data:
+                    raise Exception('Client disconnected')
+
+                packet = BBBPacket.from_bytes(data)
+                if packet.type == BBBPacketType.ROUTEUPDATE:
+                    for dst in json.loads(packet.payload):
+                        self.routes[dst] = packet.src
                     print(self.routes)
-                else:
-                    raise error('Client disconnected')
-            except:
+            except Exception as e:
+                print(e)
                 client_socket.close()
                 return False
 

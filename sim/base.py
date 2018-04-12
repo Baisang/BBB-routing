@@ -83,6 +83,7 @@ class BBBPacket(object):
 class RouterBase(object):
     def __init__(self, address):
         self.routes = {}
+        self.neighbors = set()
         self.socket = socket.socket()
         self.socket.bind((address, ROUTER_PORT))
         self.socket.listen()
