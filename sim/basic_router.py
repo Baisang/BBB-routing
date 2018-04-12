@@ -65,13 +65,12 @@ class BasicRouter(RouterBase):
                 if not data:
                     raise Exception('Client disconnected')
 
-                print(data.decode())
                 packet = BBBPacket.from_bytes(data)
-                print("sawg")
                 if packet.type == BBBPacketType.ROUTEUPDATE:
                     for dst in json.loads(packet.payload):
                         self.routes[dst] = packet.src
                     self.neighbors.add(packet.src)
+                    print("new packet from {0}".format(packet.src))
                     print(self.routes)
                     print(self.neighbors)
             except Exception as e:
