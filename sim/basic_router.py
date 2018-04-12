@@ -25,7 +25,10 @@ class BasicRouter(RouterBase):
                 n: [d for d in self.routes if self.routes[d] != n]
                 for n in self.neighbors
             }
-            for neighbor, routes in route_updates:
+            print(route_updates)
+            for neighbor, routes in route_updates.items():
+                if neighbor == "42.42.42.42":
+                    continue
                 if routes:
                     try:
                         neighbor_socket = self.sockets[neighbor]
@@ -62,7 +65,9 @@ class BasicRouter(RouterBase):
                 if not data:
                     raise Exception('Client disconnected')
 
+                print(data.decode())
                 packet = BBBPacket.from_bytes(data)
+                print("sawg")
                 if packet.type == BBBPacketType.ROUTEUPDATE:
                     for dst in json.loads(packet.payload):
                         self.routes[dst] = packet.src

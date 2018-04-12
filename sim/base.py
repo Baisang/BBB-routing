@@ -7,7 +7,8 @@ from enum import Enum
 
 DEBUG = True
 ROUTER_PORT = 42425
-PACKET_LEN = 2048
+PACKET_LEN = 1024
+PAD_CHAR = "~"
 
 class BBBPacketType(Enum):
     """
@@ -41,6 +42,12 @@ def as_enum(d):
     else:
         return d
 
+def pad(message):
+    return message + (PACKET_LEN - len(message)) * PAD_CHAR
+
+def unpad(message):
+    return message.rstrip(PAD_CHAR)
+
 # Packet class for BBB Routing
 class BBBPacket(object):
     def __init__(self, src, dst, type, payload, seq, signature):
@@ -68,7 +75,7 @@ class BBBPacket(object):
             vars(self),
             cls=BBBPacketEncoder
         )
-        return json_serialization.encode()
+        return pad(json_serialization).encode()
 
     @classmethod
     def from_bytes(cls, bytes, object_hook=as_enum):
@@ -76,7 +83,7 @@ class BBBPacket(object):
         @bytes      byte representation of this class
         @return     BBBPacket instance corresponding to bytes
         """
-        data = json.loads(bytes.decode(), object_hook=as_enum)
+        data = json.loads(unpad(bytes.decode()), object_hook=as_enum)
         return cls(**data)
 
 
