@@ -49,7 +49,7 @@ class BasicRouter(RouterBase):
         while True:
             client, address = self.socket.accept()
             client.settimeout(60)
-            self.sockets[address[0]] = client_socket
+            self.sockets[address[0]] = client
             threading.Thread(
                 target=self.handle_client,
                 args=(client, address)
