@@ -76,7 +76,7 @@ class BasicRouter(RouterBase):
     def handle_packet(self, packet):
         if packet.type == BBBPacketType.MASTERCONFIG:
             self.handle_masterconfig(packet)
-        elif packet.type == BBB.BBBPacketType.ROUTEUPDATE:
+        elif packet.type == BBBPacketType.ROUTEUPDATE:
             self.handle_routeupdate(packet)
         else:
             raise Exception("Unsupported BBBPacketType")
