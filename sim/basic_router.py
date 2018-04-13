@@ -62,8 +62,9 @@ class BasicRouter(RouterBase):
 
     def handle_masterconfig(self, packet):
         config = json.loads(packet.payload)
+        print(config, type(config))
         for host in config["hosts"]:
-            routes[host] = None
+            self.routes[host] = None
         self.hosts = config["hosts"]
         self.neighbors = set(config["neighbors"])
 
@@ -91,14 +92,19 @@ class BasicRouter(RouterBase):
                 self.handle_packet(packet)
 
                 print("new packet from {0}".format(packet.src))
-                pprint(self.routes, width=1)
-                pprint(self.neighbors, width=1)
-                print()
+                self.print_diagnostics()
 
             except Exception as e:
                 print(e)
                 client_socket.close()
                 return False
+
+    def print_diagnostics(self):
+        print("***Routes***")
+        pprint(self.routes, width=1)
+        print("***neighbors***")
+        pprint(self.neighbors, width=1)
+        print()
 
 if __name__ == "__main__":
     if len(sys.argv) == 2:

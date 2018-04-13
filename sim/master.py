@@ -22,25 +22,24 @@ class MasterRouter(object):
 
         while True:
         # for each host, send a BBBPacket with appropriate routes
-            for host, neighbors in self.topology.items():
-                for neighbor, routes in neighbors.items():
-                    print("attempting to connect to: {0}".format(host))
-                    endpoint = (host, ROUTER_PORT)
-                    try:
-                        host_socket = self.sockets[endpoint]
-                    except KeyError:
-                        host_socket = socket.socket()
-                        self.sockets[endpoint] = host_socket
-                        host_socket.connect(endpoint)
-                    route_packet = BBBPacket(
-                        src=neighbor,
-                        dst=host,
-                        type=BBBPacketType.MASTERCONFIG,
-                        payload=json.dumps(routes),
-                        seq=0,
-                        signature=""
-                    )
-                    host_socket.sendall(route_packet.to_bytes())
+            for host, config in self.topology.items():
+                print("attempting to connect to: {0}".format(host))
+                endpoint = (host, ROUTER_PORT)
+                try:
+                    host_socket = self.sockets[endpoint]
+                except KeyError:
+                    host_socket = socket.socket()
+                    self.sockets[endpoint] = host_socket
+                    host_socket.connect(endpoint)
+                config_packet = BBBPacket(
+                    src=host_socket.getsockname()[0],
+                    dst=host,
+                    type=BBBPacketType.MASTERCONFIG,
+                    payload=json.dumps(config),
+                    seq=0,
+                    signature=""
+                )
+                host_socket.sendall(config_packet.to_bytes())
             sleep(TOPO_UPDATE_PERIOD)
 
 if __name__ == "__main__":
