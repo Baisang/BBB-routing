@@ -18,11 +18,10 @@ class BBBPacketType(Enum):
     ROUTESETUP:     Packet to setup route flow a certain flow
     PAYLOAD:        payload string, sent after a ROUTESETUP
     """
-    KEY = 0
+    MASTERCONFIG = 0
     ROUTEUPDATE = 1
     ROUTESETUP = 2
     PAYLOAD = 3
-
 
 PUBLIC_ENUMS = {
     'BBBPacketType': BBBPacketType

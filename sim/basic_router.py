@@ -7,6 +7,7 @@ import threading
 import time
 import json
 import sys
+from pprint import pprint
 
 
 class BasicRouter(RouterBase):
@@ -26,7 +27,7 @@ class BasicRouter(RouterBase):
                 n: [d for d in self.routes if self.routes[d] != n]
                 for n in self.neighbors
             }
-            print(route_updates)
+            pprint(route_updates, width=1)
             for neighbor, routes in route_updates.items():
                 if neighbor == "42.42.42.42":
                     continue
@@ -59,6 +60,26 @@ class BasicRouter(RouterBase):
                 args=(client, address)
             ).start()
 
+    def handle_masterconfig(self, packet):
+        config = json.loads(packet.payload)
+        for host in config["hosts"]:
+            routes[host] = None
+        self.hosts = config["hosts"]
+        self.neighbors = set(config["neighbors"])
+
+    def handle_routeupdate(self, packet):
+        for dst in json.loads(packet.payload):
+            self.routes[dst] = packet.src
+            self.neighbors.add(packet.src)
+
+    def handle_packet(self, packet):
+        if packet.type == BBBPacketType.MASTERCONFIG:
+            self.handle_master_packet(packet)
+        elif packet.type == BBB.BBBPacketType.ROUTEUPDATE:
+            self.handle_routeupdate(packet)
+        else:
+            raise Exception("Unsupported BBBPacketType")
+
     def handle_client(self, client_socket, address):
         while True:
             try:
@@ -67,13 +88,13 @@ class BasicRouter(RouterBase):
                     raise Exception('Client disconnected')
 
                 packet = BBBPacket.from_bytes(data)
-                if packet.type == BBBPacketType.ROUTEUPDATE:
-                    for dst in json.loads(packet.payload):
-                        self.routes[dst] = packet.src
-                    self.neighbors.add(packet.src)
-                    print("new packet from {0}".format(packet.src))
-                    print(self.routes)
-                    print(self.neighbors)
+                self.handle_packet(packet)
+
+                print("new packet from {0}".format(packet.src))
+                pprint(self.routes, width=1)
+                pprint(self.neighbors, width=1)
+                print()
+
             except Exception as e:
                 print(e)
                 client_socket.close()

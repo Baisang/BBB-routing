@@ -35,7 +35,7 @@ class MasterRouter(object):
                     route_packet = BBBPacket(
                         src=neighbor,
                         dst=host,
-                        type=BBBPacketType.ROUTEUPDATE,
+                        type=BBBPacketType.MASTERCONFIG,
                         payload=json.dumps(routes),
                         seq=0,
                         signature=""
