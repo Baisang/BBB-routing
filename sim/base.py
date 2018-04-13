@@ -97,5 +97,6 @@ class RouterBase(object):
         self.address = address
         print("starting server on {0}:{1}".format(address, ROUTER_PORT))
 
+    # DELETE THIS
     def update_routes(packet):
         self.routes.update(packet.payload)
