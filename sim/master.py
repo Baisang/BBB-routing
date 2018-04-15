@@ -12,7 +12,14 @@ TOPO_DIRECTORY = "topologies"
 TOPO_UPDATE_PERIOD = 5
 
 class Master(object):
+    """Master Node.
+    Responsible for parsing topology information from a JSON file and sending
+    corresponding packets to configure routers.
+    """
     def __init__(self, topo_path="simple.json"):
+        """Constructor
+        @topo_path      name of the topology file to parse
+        """
         self.sockets = {}
 
         # Load the network topology from the json file
@@ -21,16 +28,19 @@ class Master(object):
             self.topology = json.loads(topo_file.read())
 
         while True:
-        # for each host, send a BBBPacket with appropriate routes
             for host, config in self.topology.items():
+                # get corresponding socket for host
                 print("attempting to connect to: {0}".format(host))
                 endpoint = (host, ROUTER_PORT)
                 try:
                     host_socket = self.sockets[endpoint]
                 except KeyError:
+                    # create and store a new socket if necessary
                     host_socket = socket.socket()
                     self.sockets[endpoint] = host_socket
                     host_socket.connect(endpoint)
+
+                # create configuration packet and send it to the host
                 config_packet = BBBPacket(
                     src=host_socket.getsockname()[0],
                     dst=host,

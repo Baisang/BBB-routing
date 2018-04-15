@@ -25,14 +25,17 @@ PUBLIC_ENUMS = {
     'BBBPacketType': BBBPacketType
 }
 
-# JSON encoding and decoding helpers
 class BBBPacketEncoder(json.JSONEncoder):
+    """Serializing Class to turn BBBPackets into a JSON string
+    """
     def default(self, obj):
         if type(obj) in PUBLIC_ENUMS.values():
             return {"__enum__": str(obj)}
         return json.JSONEncoder.default(self, obj)
 
 def as_enum(d):
+    """Helper for deserializing a valid JSON string back into a BBBPacket.
+    """
     if "__enum__" in d:
         name, member = d["__enum__"].split(".")
         return getattr(PUBLIC_ENUMS[name], member)
@@ -40,9 +43,13 @@ def as_enum(d):
         return d
 
 def pad(message):
+    """Pads packet payloads to specific length using a PAD_CHAR
+    """
     return message + (PACKET_LEN - len(message)) * PAD_CHAR
 
 def unpad(message):
+    """Removes packet padding
+    """
     return message.rstrip(PAD_CHAR)
 
 # Packet class for BBB Routing
@@ -85,14 +92,16 @@ class BBBPacket(object):
 
 
 class RouterBase(object):
-    def __init__(self, address):
+    """Base Class for this Router.
+    """
+    def __init__(self, ip_address):
         self.routes = {}        # dst_ip: next_hop_ip
         self.sockets = {}       # next_hop_ip: socket_instance
         self.keys = {}          # ip: public_key
         self.neighbors = set()  # ip addresses of neighbors
 
         self.socket = socket.socket()
-        self.socket.bind((address, ROUTER_PORT))
+        self.socket.bind((ip_address, ROUTER_PORT))
         self.socket.listen()
-        self.address = address
+        self.ip_address = ip_address
         print("starting server on {0}:{1}".format(address, ROUTER_PORT))
