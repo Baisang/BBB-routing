@@ -106,12 +106,11 @@ class BasicRouter(RouterBase):
         self.routes[packet.src] = packet.src
 
     def handle_payload(self, packet, address):
-        print("handling payload", self.address, packet.src, packet.dst)
-        if packet.dst not in self.routes:
-            return
-        print(packet.dst==self.address, repr(packet.dst), repr(self.address))
         if packet.dst == self.address or self.routes[packet.dst] == None:
             print("accepting packet from {0}".format(packet.src))
+            return
+
+        if packet.dst not in self.routes:
             return
 
         for neighbor in self.neighbors:
