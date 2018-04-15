@@ -2,6 +2,9 @@ import select
 import socket
 import sys
 import json
+from Crypto.PublicKey import RSA
+from bigchaindb_driver import BigchainDB
+from bigchaindb_driver.crypto import CryptoKeypair
 from enum import Enum
 
 
@@ -92,6 +95,19 @@ class RouterBase(object):
         self.sockets = {}       # next_hop_ip: socket_instance
         self.keys = {}          # ip: public_key
         self.neighbors = set()  # ip addresses of neighbors
+
+        # bigchaindb
+        bdb_root_url = 'http://bdb-server:9984' # TODO: is this right?
+        self.bdb = BigchainDB(bdb_root_url)
+
+        with open('sim/../build/.bigchaindb') as f:
+            d = json.load(f)
+        self.bdb_keypair = CryptoKeyPair(d['keypair']['private'], d['keypair']['public'])
+        self.keyring = d['keyring']
+
+        self.packet_private_key = RSA.generate(2048)
+        # TODO: Add data/packet public key to bigchaindb
+
 
         self.socket = socket.socket()
         self.socket.bind((address, ROUTER_PORT))
