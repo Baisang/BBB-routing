@@ -33,10 +33,16 @@ class BasicRouter(RouterBase):
                     try:
                         neighbor_socket = self.sockets[neighbor]
                     except KeyError:
+                        neighbor_endpoint = (neighbor, ROUTER_PORT)
                         neighbor_socket = socket.socket()
                         print("trying to connect to {0}".format(neighbor))
-                        neighbor_socket.connect((neighbor, ROUTER_PORT))
+
+                        neighbor_socket.connect(neighbor_endpoint)
                         self.sockets[neighbor] = neighbor_socket
+                        threading.Thread(
+                            target=self.handle_client,
+                            args=(neighbor_socket, neighbor_endpoint)
+                        ).start()
                     route_packet = BBBPacket(
                         src=self.address,
                         dst=neighbor,
