@@ -13,12 +13,24 @@ from pprint import pprint
 class BasicRouter(RouterBase):
     def __init__(self, address):
         super().__init__(address)
-        threading.Thread(
-            target=self.accept_connections
-        ).start()
-        threading.Thread(
-            target=self.update_neighbors
-        ).start()
+        threading.Thread(target=self.accept_connections).start()
+        threading.Thread(target=self.update_neighbors).start()
+        while True:
+            cli_input = input()
+            self.handle_cli(cli_input)
+
+
+    def handle_cli(self, cli_input):
+        cli_input_tokens = cli_input.split()
+        try:
+            if cli_input_tokens[0] == "send":
+                address, count = cli_input_tokens[1:]
+                threading.Thread(target=self.send_hello(address, count)).start()
+            else:
+                raise Exception()
+        except Exception as e:
+            print(e)
+            print("unrecognized command")
 
     def update_neighbors(self):
         while True:
@@ -131,14 +143,14 @@ class BasicRouter(RouterBase):
                 client_socket.close()
                 return False
 
-    def send_hello_forever(self, address):
-        while True:
+    def send_hello(self, address, count):
+        for i in range(int(count)):
             if address in self.routes:
                 packet = BBBPacket(
                     src=self.address,
                     dst=address,
                     type=BBBPacketType.PAYLOAD,
-                    payload="hello",
+                    payload="hello-{0}".format(i),
                     seq=0,
                     signature=""
                 )
