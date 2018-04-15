@@ -70,17 +70,6 @@ class BasicRouter(RouterBase):
         """
         TODO: Fill out this function
         If DEBUG parameter is true, return true.
-
-        Verify packet's validity.
-        If using Asymmetric Key Crypto:
-            - Master Key is assumed to be public and trusted. Can use this
-            to verify MASTERCONFIG packets and get keys for other nodes.
-            - For other packets, check to see if we have public key and verify
-            packet using seq and signature.
-            - Fail safe, in case we don't have a key
-
-        If using blockchain:
-            - I have no idea.  @baisang pls
         """
         if DEBUG:
             return True
@@ -103,11 +92,23 @@ class BasicRouter(RouterBase):
             self.routes[dst] = packet.src
             self.neighbors.add(packet.src)
 
+    def handle_payload(self, packet):
+        if packets.dst not in self.routes:
+            return
+
+        for neighbor in neighbors:
+            if neighbor != self.routes[packet.dst]:
+                neighbor_socket = self.sockets[neighbor]
+                print("forwarding from {0} to {1}".format(packet.src, neighbor))
+                neighbor_socket.sendall(packet.to_bytes())
+
     def handle_packet(self, packet):
         if packet.type == BBBPacketType.MASTERCONFIG:
             self.handle_masterconfig(packet)
         elif packet.type == BBBPacketType.ROUTEUPDATE:
             self.handle_routeupdate(packet)
+        elif packet.type == BBBPacketType.PAYLOAD:
+            self.handle_payload(packet)
         else:
             raise Exception("Unsupported BBBPacketType")
 
@@ -119,16 +120,30 @@ class BasicRouter(RouterBase):
                     raise Exception('Client disconnected')
 
                 packet = BBBPacket.from_bytes(data)
-                print("new packet from {0}".format(packet.src))
+                print("new {0} packet from {0}".format(packet.type, packet.src))
                 if self.verify(packet):
                     self.handle_packet(packet)
 
-                self.print_diagnostics()
+                # self.print_diagnostics()
 
             except Exception as e:
                 print(e)
                 client_socket.close()
                 return False
+
+    def send_hello_forever(self, address):
+        while True:
+            if address in self.routes:
+                packet = BBBPacket(
+                    src=self.address,
+                    dst=address,
+                    type=BBBPacketType.PAYLOAD,
+                    payload="hello",
+                    seq=0,
+                    signature=""
+                )
+                self.sockets[self.routes[address]].sendall(packet.to_bytes())
+            time.sleep(10)
 
     def print_diagnostics(self):
         print("***Routes***")

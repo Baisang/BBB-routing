@@ -11,7 +11,7 @@ from base import (
 TOPO_DIRECTORY = "topologies"
 TOPO_UPDATE_PERIOD = 5
 
-class MasterRouter(object):
+class Master(object):
     def __init__(self, topo_path="simple.json"):
         self.sockets = {}
 
@@ -43,4 +43,4 @@ class MasterRouter(object):
             sleep(TOPO_UPDATE_PERIOD)
 
 if __name__ == "__main__":
-    MasterRouter()
+    Master()

@@ -13,15 +13,13 @@ PAD_CHAR = "~"
 class BBBPacketType(Enum):
     """
     Enum for different BBBPacket types
-    KEY:            Packet containing key information
+    MASTERCONFIG:   Packet from MASTER configuring network topology
     ROUTEUPDATE:    Updates about network topology
-    ROUTESETUP:     Packet to setup route flow a certain flow
     PAYLOAD:        payload string, sent after a ROUTESETUP
     """
     MASTERCONFIG = 0
     ROUTEUPDATE = 1
-    ROUTESETUP = 2
-    PAYLOAD = 3
+    PAYLOAD = 2
 
 PUBLIC_ENUMS = {
     'BBBPacketType': BBBPacketType
