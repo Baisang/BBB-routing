@@ -105,7 +105,11 @@ class BasicRouter(RouterBase):
             self.neighbors.add(packet.src)
 
     def handle_payload(self, packet):
-        if packets.dst not in self.routes:
+        if packet.dst not in self.routes:
+            return
+
+        if packet.dst == self.address or self.routes[packet.dst] == None:
+            print("accepting packet from {0}".format(packet.src))
             return
 
         for neighbor in neighbors:
