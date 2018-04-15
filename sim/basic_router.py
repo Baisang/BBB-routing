@@ -7,6 +7,9 @@ import threading
 import time
 import json
 import sys
+from Crypto.Signature import pss
+from Crypto.Hash import SHA256
+from Crypto.PublicKey import RSA
 from pprint import pprint
 
 
@@ -62,9 +65,6 @@ class BasicRouter(RouterBase):
 
     def verify(self, packet):
         """
-        TODO: Fill out this function
-        If DEBUG parameter is true, return true.
-
         Verify packet's validity.
         If using Asymmetric Key Crypto:
             - Master Key is assumed to be public and trusted. Can use this
@@ -72,12 +72,27 @@ class BasicRouter(RouterBase):
             - For other packets, check to see if we have public key and verify
             packet using seq and signature.
             - Fail safe, in case we don't have a key
-
-        If using blockchain:
-            - I have no idea.  @baisang pls
         """
-        if DEBUG:
-            return True
+
+        # Check if the packet has a sequence number greater than the the last
+        # seen sequence number for that sender.
+        if packet.seq <= self.sqn_numbers[packet.src]:
+            return False
+
+        # Check the signature included in the packet
+        fields = vars(packet).copy()
+        fields.pop('key')
+        serialization = json.dumps(fields)
+        h = SHA256.new(serialization.encode())
+
+        # Get public key of source
+        src_public_key = self.keys[packet.src]
+        verifier = pss.new()
+        try:
+            verifier.verify(h, packet.signature)
+        except:
+            return False
+        return True
 
 
     def handle_masterconfig(self, packet):
