@@ -93,20 +93,32 @@ class RouterBase(object):
     def __init__(self, address):
         self.routes = {}        # dst_ip: next_hop_ip
         self.sockets = {}       # next_hop_ip: socket_instance
-        self.keys = {}          # ip: public_key
+        self.keys = {}          # ip: packet_public_key
+        self.sqn_numbers = {}   # ip: most recent sequence number received
         self.neighbors = set()  # ip addresses of neighbors
 
-        # bigchaindb
+        # Connect to bigchaindb
         bdb_root_url = 'http://bdb-server:9984' # TODO: is this right?
         self.bdb = BigchainDB(bdb_root_url)
 
+        # Read bdb keypair from the .bigchaindb config file
         with open('sim/../build/.bigchaindb') as f:
             d = json.load(f)
-        self.bdb_keypair = CryptoKeyPair(d['keypair']['private'], d['keypair']['public'])
+        self.bdb_keypair = CryptoKeyPair(d['keypair']['private'],
+            d['keypair']['public'])
         self.keyring = d['keyring']
 
-        self.packet_private_key = RSA.generate(2048)
-        # TODO: Add data/packet public key to bigchaindb
+        self.packet_key = RSA.generate(2048)
+
+        # Add packet public key to bigchaindb
+        # TODO: Change value to be less hacky
+        asset = {'data': {'packet_signing_public_key': str(self.packet_key.publickey().n)}}
+        prepared_transaction = self.bdb.transactions.prepare(operation = 'CREATE',
+            signers = self.bdb_keypair.public_key,
+            asset = asset)
+        fulfilled_transaction = self.bdb.transactions.fulfill(
+            prepared_transaction, private_keys = self.bdb_keypair.private_key)
+        sent_txn = self.bdb.send(fulfilled_transaction)
 
 
         self.socket = socket.socket()
