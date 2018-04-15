@@ -103,6 +103,7 @@ class BasicRouter(RouterBase):
         for dst in json.loads(packet.payload):
             self.routes[dst] = packet.src
             self.neighbors.add(packet.src)
+        self.routes[packet.src] = packet.src
 
     def handle_payload(self, packet):
         if packet.dst not in self.routes:
@@ -112,7 +113,7 @@ class BasicRouter(RouterBase):
             print("accepting packet from {0}".format(packet.src))
             return
 
-        for neighbor in neighbors:
+        for neighbor in self.neighbors:
             if neighbor != self.routes[packet.dst]:
                 neighbor_socket = self.sockets[neighbor]
                 print("forwarding from {0} to {1}".format(packet.src, neighbor))
