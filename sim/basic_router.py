@@ -29,13 +29,12 @@ class BasicRouter(RouterBase):
             }
             pprint(route_updates, width=1)
             for neighbor, routes in route_updates.items():
-                if neighbor == "42.42.42.42":
-                    continue
                 if routes:
                     try:
                         neighbor_socket = self.sockets[neighbor]
                     except KeyError:
                         neighbor_socket = socket.socket()
+                        print("trying to connect to {0}".format(neighbor))
                         neighbor_socket.connect((neighbor, ROUTER_PORT))
                         self.sockets[neighbor] = neighbor_socket
                     route_packet = BBBPacket(
@@ -47,6 +46,7 @@ class BasicRouter(RouterBase):
                         signature=""
                     )
                     neighbor_socket.sendall(route_packet.to_bytes())
+                    print("sent to {0}".format(neighbor))
             time.sleep(10)
 
 
