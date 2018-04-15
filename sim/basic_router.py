@@ -91,7 +91,6 @@ class BasicRouter(RouterBase):
             self.routes[host] = None
         self.hosts = config["hosts"]
         self.neighbors = self.neighbors.union(config["neighbors"])
-        self.keys.update(config["keys"])
 
     def handle_routeupdate(self, packet):
         for dst in json.loads(packet.payload):
