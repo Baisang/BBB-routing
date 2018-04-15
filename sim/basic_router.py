@@ -115,7 +115,7 @@ class BasicRouter(RouterBase):
             return
 
         for neighbor in self.neighbors:
-            if neighbor != address:
+            if neighbor != address[0]:
                 neighbor_socket = self.sockets[neighbor]
                 print("forwarding from {0} to {1}".format(packet.src, neighbor))
                 neighbor_socket.sendall(packet.to_bytes())
