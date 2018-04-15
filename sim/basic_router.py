@@ -105,7 +105,8 @@ class BasicRouter(RouterBase):
             self.neighbors.add(packet.src)
         self.routes[packet.src] = packet.src
 
-    def handle_payload(self, packet):
+    def handle_payload(self, packet, address):
+        print("handling payload")
         if packet.dst not in self.routes:
             return
 
@@ -114,18 +115,18 @@ class BasicRouter(RouterBase):
             return
 
         for neighbor in self.neighbors:
-            if neighbor != self.routes[packet.dst]:
+            if neighbor != address:
                 neighbor_socket = self.sockets[neighbor]
                 print("forwarding from {0} to {1}".format(packet.src, neighbor))
                 neighbor_socket.sendall(packet.to_bytes())
 
-    def handle_packet(self, packet):
+    def handle_packet(self, packet, address):
         if packet.type == BBBPacketType.MASTERCONFIG:
             self.handle_masterconfig(packet)
         elif packet.type == BBBPacketType.ROUTEUPDATE:
             self.handle_routeupdate(packet)
         elif packet.type == BBBPacketType.PAYLOAD:
-            self.handle_payload(packet)
+            self.handle_payload(packet, address)
         else:
             raise Exception("Unsupported BBBPacketType")
 
@@ -139,7 +140,7 @@ class BasicRouter(RouterBase):
                 packet = BBBPacket.from_bytes(data)
                 print("new {0} packet from {1}".format(packet.type, packet.src))
                 if self.verify(packet):
-                    self.handle_packet(packet)
+                    self.handle_packet(packet, address)
 
                 # self.print_diagnostics()
 
