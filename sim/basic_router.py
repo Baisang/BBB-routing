@@ -106,7 +106,7 @@ class BasicRouter(RouterBase):
         self.routes[packet.src] = packet.src
 
     def handle_payload(self, packet, address):
-        print("handling payload")
+        print("handling payload", address)
         if packet.dst not in self.routes:
             return
 
