@@ -148,6 +148,8 @@ class BasicRouter(RouterBase):
                 return False
 
     def send_hello(self, address, count):
+        print("attempting to send to {0}".format(address))
+        self.print_diagnostics()
         for i in range(int(count)):
             if address in self.routes:
                 packet = BBBPacket(
