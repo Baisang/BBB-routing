@@ -1,6 +1,6 @@
 from base import (
     BBBPacket, BBBPacketType, RouterBase,
-    PACKET_LEN, ROUTER_PORT
+    PACKET_LEN, ROUTER_PORT, DEBUG
 )
 import socket
 import threading
@@ -60,13 +60,38 @@ class BasicRouter(RouterBase):
                 args=(client, address)
             ).start()
 
+    def verify(self, packet):
+        """
+        TODO: Fill out this function
+        If DEBUG parameter is true, return true.
+
+        Verify packet's validity.
+        If using Asymmetric Key Crypto:
+            - Master Key is assumed to be public and trusted. Can use this
+            to verify MASTERCONFIG packets and get keys for other nodes.
+            - For other packets, check to see if we have public key and verify
+            packet using seq and signature.
+            - Fail safe, in case we don't have a key
+
+        If using blockchain:
+            - I have no idea.  @baisang pls
+        """
+        if DEBUG:
+            return True
+
+
     def handle_masterconfig(self, packet):
+        """
+        A masterconfig packets causes a router to update
+        routes, keys, and neighbors to match packet config info
+        """
         config = json.loads(packet.payload)
         print(config, type(config))
         for host in config["hosts"]:
             self.routes[host] = None
         self.hosts = config["hosts"]
-        self.neighbors = set(config["neighbors"])
+        self.neighbors = self.neighbors.union(config["neighbors"].keys())
+        self.keys.update(config["neighbors"])
 
     def handle_routeupdate(self, packet):
         for dst in json.loads(packet.payload):
@@ -89,9 +114,10 @@ class BasicRouter(RouterBase):
                     raise Exception('Client disconnected')
 
                 packet = BBBPacket.from_bytes(data)
-                self.handle_packet(packet)
-
                 print("new packet from {0}".format(packet.src))
+                if self.verify(packet):
+                    self.handle_packet(packet)
+
                 self.print_diagnostics()
 
             except Exception as e:

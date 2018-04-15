@@ -88,9 +88,11 @@ class BBBPacket(object):
 
 class RouterBase(object):
     def __init__(self, address):
-        self.routes = {}
-        self.neighbors = set()
-        self.sockets = {}
+        self.routes = {}        # dst_ip: next_hop_ip
+        self.sockets = {}       # next_hop_ip: socket_instance
+        self.keys = {}          # ip: public_key
+        self.neighbors = set()  # ip addresses of neighbors
+
         self.socket = socket.socket()
         self.socket.bind((address, ROUTER_PORT))
         self.socket.listen()
