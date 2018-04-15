@@ -90,8 +90,8 @@ class BasicRouter(RouterBase):
         for host in config["hosts"]:
             self.routes[host] = None
         self.hosts = config["hosts"]
-        self.neighbors = self.neighbors.union(config["neighbors"].keys())
-        self.keys.update(config["neighbors"])
+        self.neighbors = self.neighbors.union(config["neighbors"])
+        self.keys.update(config["keys"])
 
     def handle_routeupdate(self, packet):
         for dst in json.loads(packet.payload):
@@ -130,6 +130,10 @@ class BasicRouter(RouterBase):
         pprint(self.routes, width=1)
         print("***neighbors***")
         pprint(self.neighbors, width=1)
+        print("***sockets***")
+        pprint(self.sockets, width=1)
+        print("***keys***")
+        pprint(self.keys, width=1)
         print()
 
 if __name__ == "__main__":
