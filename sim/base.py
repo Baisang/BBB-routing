@@ -57,7 +57,7 @@ def unpad(message):
 
 # Packet class for BBB Routing
 class BBBPacket(object):
-    def __init__(self, src, dst, type, payload, seq, signature):
+    def __init__(self, src, dst, type, payload, seq):
         """
         Constructor for a BBBPacket
         @src                    address of source
@@ -65,14 +65,12 @@ class BBBPacket(object):
         @type BBBPacketType     A BBBPacket Type
         @payload                string payload
         @seq                    sequence number
-        @signature              signature
         """
         self.src = src
         self.dst = dst
         self.type = type
         self.payload = payload
         self.seq = seq
-        self.signature = signature
 
     def to_bytes(self):
         """
@@ -97,49 +95,53 @@ class BBBPacket(object):
 class RouterBase(object):
     """Base Class for this Router.
     """
-    def __init__(self, ip_address):
+    def __init__(self, ip_address, test=False):
         self.routes = {}        # dst_ip: next_hop_ip
         self.sockets = {}       # next_hop_ip: socket_instance
         self.keys = {}          # ip: packet_public_key
         self.sqn_numbers = {}   # ip: most recent sequence number received
         self.neighbors = set()  # ip addresses of neighbors
+        
+        # For unit tests
+        self.test = test
 
-        # Connect to bigchaindb
-        bdb_root_url = 'http://bdb-server:9984' # TODO: is this right?
-        self.bdb = BigchainDB(bdb_root_url)
-
-        # Read bdb keypair from the .bigchaindb config file
-        with open('sim/../build/.bigchaindb') as f:
-            d = json.load(f)
-        self.bdb_keypair = CryptoKeyPair(
-                d['keypair']['private'],
-                d['keypair']['public'],
-        )
-        self.keyring = d['keyring']
-
+        # Key used for signing packets
         self.packet_key = RSA.generate(2048)
 
-        # Add packet public key, IP addr to bigchaindb
-        asset = {'data':
-                    {
-                        'packet_signing_public_key': str(self.packet_key.publickey().n),
-                        'ip_address': ip_address,
-                    },
-                }
-        prepared_transaction = self.bdb.transactions.prepare(
-            operation = 'CREATE',
-            signers = self.bdb_keypair.public_key,
-            asset = asset,
-        )
-        fulfilled_transaction = self.bdb.transactions.fulfill(
-            prepared_transaction,
-            private_keys = self.bdb_keypair.private_key,
-        )
-        sent_txn = self.bdb.send(fulfilled_transaction)
+        # Connect to bigchaindb
+        if not test:
+            bdb_root_url = 'http://localhost:9984' # TODO: is this right?
+            self.bdb = BigchainDB(bdb_root_url)
+            # Read bdb keypair from the .bigchaindb config file
+            with open('sim/../build/.bigchaindb') as f:
+                d = json.load(f)
+            self.bdb_keypair = CryptoKeyPair(
+                    d['keypair']['private'],
+                    d['keypair']['public'],
+            )
+            self.keyring = d['keyring']
+
+            # Add packet public key, IP addr to bigchaindb
+            asset = {'data':
+                        {
+                            'packet_signing_public_key': str(self.packet_key.publickey().n),
+                            'ip_address': ip_address,
+                        },
+                    }
+            prepared_transaction = self.bdb.transactions.prepare(
+                operation = 'CREATE',
+                signers = self.bdb_keypair.public_key,
+                asset = asset,
+            )
+            fulfilled_transaction = self.bdb.transactions.fulfill(
+                prepared_transaction,
+                private_keys = self.bdb_keypair.private_key,
+            )
+            sent_txn = self.bdb.send(fulfilled_transaction)
 
 
-        self.socket = socket.socket()
-        self.socket.bind((ip_address, ROUTER_PORT))
-        self.socket.listen()
+            self.socket = socket.socket()
+            self.socket.bind((ip_address, ROUTER_PORT))
+            self.socket.listen()
         self.ip_address = ip_address
-        print("starting server on {0}:{1}".format(address, ROUTER_PORT))
+        print("starting server on {0}:{1}".format(ip_address, ROUTER_PORT))

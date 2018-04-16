@@ -1,4 +1,4 @@
-from base import (
+from sim.base import (
     BBBPacket, BBBPacketType, RouterBase,
     PACKET_LEN, ROUTER_PORT, DEBUG
 )
@@ -7,9 +7,9 @@ import threading
 import time
 import json
 import sys
+from copy import deepcopy
 from Crypto.Signature import pss
 from Crypto.Hash import SHA256
-from Crypto.PublicKey import RSA
 from pprint import pprint
 
 
@@ -27,18 +27,20 @@ class BasicRouter(RouterBase):
             Created for every open socket, listens to the socket for data
             Dispatches read data to the proper handler
     """
-    def __init__(self, ip_address):
+    def __init__(self, ip_address, test=False):
         # Call parent's init
-        super().__init__(ip_address)
+        super().__init__(ip_address, test=test)
 
-        # Start LISTEN and ROUTEUPDATE thread
-        threading.Thread(target=self.accept_connections).start()
-        threading.Thread(target=self.update_neighbors).start()
+        # For unit tests
+        if not test:
+            # Start LISTEN and ROUTEUPDATE thread
+            threading.Thread(target=self.accept_connections).start()
+            threading.Thread(target=self.update_neighbors).start()
 
-        # Task main thread with handling CLI
-        while True:
-            cli_input = input()
-            self.handle_cli(cli_input)
+            # Task main thread with handling CLI
+            while True:
+                cli_input = input()
+                self.handle_cli(cli_input)
 
 
     def handle_cli(self, cli_input):
@@ -128,24 +130,36 @@ class BasicRouter(RouterBase):
 
         # Check if the packet has a sequence number greater than the the last
         # seen sequence number for that sender.
-        if packet.seq <= self.sqn_numbers[packet.src]:
+        if packet.src in self.sqn_numbers and packet.seq <= self.sqn_numbers[packet.src]:
             return False
 
         # Check the signature included in the packet
-        fields = vars(packet).copy()
-        fields.pop('key')
-        serialization = json.dumps(fields)
-        h = SHA256.new(serialization.encode())
+        copy = deepcopy(packet)
+        del copy.signature
+        serialization = copy.to_bytes()
+        h = SHA256.new(serialization)
 
         # Get public key of source
         src_public_key = self.keys[packet.src]
-        verifier = pss.new()
+        verifier = pss.new(src_public_key)
         try:
             verifier.verify(h, packet.signature)
-        except:
+        except Exception as e:
+            print(e)
             return False
         return True
 
+    def sign(self, packet):
+        """
+        Signs a packet. This modifies packet by adding a signature attribute
+        """
+        copy = deepcopy(packet)
+        serialization = copy.to_bytes()
+        h = SHA256.new(serialization)
+
+        verifier = pss.new(self.packet_key)
+        signature = verifier.sign(h)
+        packet.signature = signature
 
     def handle_masterconfig(self, packet):
         """Handles MASTERCONFIG packets
@@ -187,6 +201,7 @@ class BasicRouter(RouterBase):
         based on the packet's BBBPacketType.
         @packet         BBBPacket instance to be handled
         @address        tuple of (ip, port)
+
         """
         if packet.type == BBBPacketType.MASTERCONFIG:
             self.handle_masterconfig(packet)
