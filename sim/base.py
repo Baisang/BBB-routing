@@ -113,9 +113,9 @@ class RouterBase(object):
             bdb_root_url = 'http://localhost:9984' # TODO: is this right?
             self.bdb = BigchainDB(bdb_root_url)
             # Read bdb keypair from the .bigchaindb config file
-            with open('sim/../build/.bigchaindb') as f:
+            with open('build/.bigchaindb') as f:
                 d = json.load(f)
-            self.bdb_keypair = CryptoKeyPair(
+            self.bdb_keypair = CryptoKeypair(
                     d['keypair']['private'],
                     d['keypair']['public'],
             )
@@ -137,7 +137,7 @@ class RouterBase(object):
                 prepared_transaction,
                 private_keys = self.bdb_keypair.private_key,
             )
-            sent_txn = self.bdb.send(fulfilled_transaction)
+            sent_txn = self.bdb.transactions.send(fulfilled_transaction)
 
 
             self.socket = socket.socket()

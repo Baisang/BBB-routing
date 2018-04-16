@@ -270,4 +270,4 @@ if __name__ == "__main__":
     if len(sys.argv) == 2:
         BasicRouter(sys.argv[1])
     else:
-        print("please run python3 basic_router.py <local-IP>")
+        print("please run python3 -m sim.basic_router <local-IP>")
