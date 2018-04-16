@@ -37,6 +37,7 @@ paramiko==2.1.4
 pkg-resources==0.0.0
 pyasn1==0.2.3
 pycparser==2.18
+pycryptodome==3.6.0
 pymongo==3.6.1
 PyNaCl==1.1.2
 pysha3==1.0.2
