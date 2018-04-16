@@ -13,7 +13,6 @@ We support installations on Debian Stretch, but this should all work on other De
   - `libssl-dev`
   - `python3-pip`
   - `docker` - [installation instructions](https://docs.docker.com/install/linux/docker-ce/debian/)
-  - `docker-compose` - version 3, [installation instructions](https://docs.docker.com/compose/install/#install-compose)
 
 All should be install-able from `apt` or through other instructions linked.
 
