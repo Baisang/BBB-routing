@@ -111,20 +111,30 @@ class RouterBase(object):
         # Read bdb keypair from the .bigchaindb config file
         with open('sim/../build/.bigchaindb') as f:
             d = json.load(f)
-        self.bdb_keypair = CryptoKeyPair(d['keypair']['private'],
-            d['keypair']['public'])
+        self.bdb_keypair = CryptoKeyPair(
+                d['keypair']['private'],
+                d['keypair']['public'],
+        )
         self.keyring = d['keyring']
 
         self.packet_key = RSA.generate(2048)
 
-        # Add packet public key to bigchaindb
-        # TODO: Change value to be less hacky
-        asset = {'data': {'packet_signing_public_key': str(self.packet_key.publickey().n)}}
-        prepared_transaction = self.bdb.transactions.prepare(operation = 'CREATE',
+        # Add packet public key, IP addr to bigchaindb
+        asset = {'data':
+                    {
+                        'packet_signing_public_key': str(self.packet_key.publickey().n),
+                        'ip_address': ip_address,
+                    },
+                }
+        prepared_transaction = self.bdb.transactions.prepare(
+            operation = 'CREATE',
             signers = self.bdb_keypair.public_key,
-            asset = asset)
+            asset = asset,
+        )
         fulfilled_transaction = self.bdb.transactions.fulfill(
-            prepared_transaction, private_keys = self.bdb_keypair.private_key)
+            prepared_transaction,
+            private_keys = self.bdb_keypair.private_key,
+        )
         sent_txn = self.bdb.send(fulfilled_transaction)
 
 
