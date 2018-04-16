@@ -64,6 +64,9 @@ def run_parallel_command(hosts, cmd):
         except subprocess.CalledProcessError as e:
             print('{}::{}'.format(e.output.decode('utf-8').strip(), cmd))
 
+def wakeup(hosts):
+    for host in hosts:
+        print(subprocess.check_output(['lab-wakeup', host]).decode('utf-8').strip())
 
 def bootstrap(num_machines):
     if num_machines % 2 == 0:
@@ -73,6 +76,9 @@ def bootstrap(num_machines):
     nodes = generate_keypairs(hosts)
     generate_config(nodes)
     # Maybe do something with lab wakeup here...
+    wakeup(hosts)
+    # Sleep 5 seconds to allow machines to wake up
+    time.sleep(5)
     run_parallel_command(hosts, 'git clone https://github.com/Baisang/BBB-routing.git')
     run_parallel_command(hosts, 'mkdir ~/BBB-routing/build/')
     run_parallel_command(hosts, 'virtualenv ~/BBB-routing/venv/ --python=python3')
