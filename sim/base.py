@@ -130,7 +130,7 @@ class RouterBase(object):
             # Add packet public key, IP addr to bigchaindb
             asset = {'data':
                         {
-                            'public_key': str(self.packet_key.publickey().n),
+                            'public_key': str(self.packet_key.publickey()),
                             'ip_address': ip_address,
                         },
                     }
