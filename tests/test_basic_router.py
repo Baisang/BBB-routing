@@ -25,6 +25,20 @@ class TestBasicRouter(unittest.TestCase):
         router.keys['1.1.1.1'] = RSA.generate(2048).publickey()
         assert not router.verify(packet)
 
+    def test_simple_sign_verify_encoding(self):
+        router = BasicRouter('1.1.1.1', test=True)
+        message = 'hello world'
+        packet = BBBPacket('1.1.1.1', '2.2.2.2', BBBPacketType.FLOOD, message, 0)
+
+        router.sign(packet)
+
+        pem_key = router.packet_key.publickey().export_key().decode()
+        print(pem_key)
+        reread_key = RSA.import_key(pem_key.encode())
+
+        router.keys['1.1.1.1'] = reread_key
+        assert router.verify(packet)
+
     def test_verify_sequence_number(self):
         router = BasicRouter('1.1.1.1', test=True)
         message = 'hello world'

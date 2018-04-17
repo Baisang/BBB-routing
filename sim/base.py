@@ -114,6 +114,8 @@ class RouterBase(object):
         # Key used for signing packets
         self.packet_key = RSA.generate(2048)
 
+        self.keys[ip_address] = self.packet_key.publickey()
+
         # Connect to bigchaindb
         if not test:
             bdb_root_url = 'http://localhost:9984' # TODO: is this right?
@@ -126,6 +128,10 @@ class RouterBase(object):
                     d['keypair']['public'],
             )
             self.keyring = d['keyring']
+
+            print('My key:')
+            print(self.packet_key.publickey().export_key().decode())
+
 
             # Add packet public key, IP addr to bigchaindb
             asset = {'data':

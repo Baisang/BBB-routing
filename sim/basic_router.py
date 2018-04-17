@@ -161,6 +161,7 @@ class BasicRouter(RouterBase):
             # Replace this with fail silent?
             assert query[0]['data']['ip_address'] == packet.src
             self.keys[packet.src] = RSA.import_key(query[0]['data']['public_key'].encode())
+            print(self.keys)
         src_public_key = self.keys[packet.src]
         verifier = pss.new(src_public_key)
         try:
