@@ -101,15 +101,20 @@ def bootstrap(num_machines):
         replicas = hosts[1:]
         replicas = [subprocess.check_output(['host', '-t', 'A', h]).split()[-1].decode('utf-8') for h in replicas]
         replica_args = ' '.join(['{}:27017'.format(ip) for ip in replicas])
+        # Start bigchaindb on primary
+        run_parallel_command(
+                primary,
+                '{} -f {} up -d bdb'.format(docker_compose, docker_compose.yml),
+        )
         # Add replicas on primary
         run_parallel_command(
                 primary, 
                 '{} -f {} run bdb add-replicas {}'.format(docker_compose, docker_compose_yml, replica_args),
         )
 
-    # Sleep like 15 seconds to let this process work out
-    time.sleep(15)
-    # Start bigchaindb on all hosts
+    # Sleep like 30 seconds to let this process work out
+    time.sleep(30)
+    # Start bigchaindb on hosts
     run_parallel_command(
         hosts,
         '{} -f {} up -d bdb'.format(docker_compose, docker_compose_yml),
