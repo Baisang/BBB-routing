@@ -255,7 +255,7 @@ class BasicRouter(RouterBase):
                 if self.verify(packet):
                     self.handle_packet(packet, address)
 
-                # self.print_diagnostics()
+                self.print_diagnostics()
 
             except Exception as e:
                 print(e)
