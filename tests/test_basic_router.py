@@ -9,6 +9,7 @@ import threading
 from unittest.mock import Mock
 from Crypto.Signature import pss
 from Crypto.PublicKey import RSA
+from Crypto.Hash import SHA256
 
 class TestBasicRouter(unittest.TestCase):
 
@@ -128,15 +129,23 @@ class TestBasicRouter(unittest.TestCase):
 
         assert packet.__dict__ == packet_redux.__dict__
 
+        h = SHA256.new(packet_bytes)
+        h_redux = SHA256.new(packet_redux.to_bytes())
+        assert h.hexdigest() == h_redux.hexdigest()
+
+
         router1 = BasicRouter('1.1.1.1', test=True)
         router1.sign(packet)
 
         packet_bytes = packet.to_bytes()
         packet_redux = BBBPacket.from_bytes(packet_bytes)
 
+
         assert packet.__dict__ == packet_redux.__dict__
         router1.keys['2.2.2.2'] = router1.packet_key.publickey()
         assert router1.verify(packet_redux)
         router1.sqn_numbers['2.2.2.2'] = -1
         assert router1.verify(packet)
+
+
 
