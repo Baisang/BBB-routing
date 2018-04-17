@@ -156,7 +156,8 @@ class BasicRouter(RouterBase):
         if packet.src not in self.keys:
             # Query BigchainDB
             query = self.bdb.assets.get(search=packet.src)
-            print('Queried public keys:' + query)
+            print('Queried public keys:')
+            print(query)
             # Replace this with fail silent?
             assert query[0]['data']['ip_address'] == packet.src
             self.keys[packet.src] = RSA.import_key(query[0]['data']['public_key'].encode())
@@ -254,6 +255,7 @@ class BasicRouter(RouterBase):
                     raise Exception('Client disconnected')
 
                 packet = BBBPacket.from_bytes(data)
+                print(packet.__repr__())
                 if self.verify(packet):
                     self.handle_packet(packet, address)
 
