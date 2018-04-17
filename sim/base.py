@@ -101,7 +101,7 @@ class RouterBase(object):
         self.keys = {}          # ip: packet_public_key
         self.sqn_numbers = {}   # ip: most recent sequence number received
         self.neighbors = set()  # ip addresses of neighbors
-        
+
         # For unit tests
         self.test = test
 

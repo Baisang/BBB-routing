@@ -132,6 +132,8 @@ class BasicRouter(RouterBase):
         # seen sequence number for that sender.
         if packet.src in self.sqn_numbers and packet.seq <= self.sqn_numbers[packet.src]:
             return False
+        if not packet.signature:
+            return False
 
         # Check the signature included in the packet
         copy = deepcopy(packet)
@@ -144,6 +146,9 @@ class BasicRouter(RouterBase):
         verifier = pss.new(src_public_key)
         try:
             verifier.verify(h, packet.signature)
+            # We can verify the packet, so add the sqn number to our buffer
+            # TODO: make this thread safe
+            self.sqn_numbers[packet.src] = packet.seq
         except Exception as e:
             print(e)
             return False
