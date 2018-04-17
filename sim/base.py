@@ -59,7 +59,7 @@ def unpad(message):
 
 # Packet class for BBB Routing
 class BBBPacket(object):
-    def __init__(self, src, dst, type, payload, seq):
+    def __init__(self, src, dst, type, payload, seq, signature=None):
         """
         Constructor for a BBBPacket
         @src                    address of source
@@ -73,6 +73,8 @@ class BBBPacket(object):
         self.type = type
         self.payload = payload
         self.seq = seq
+        if signature:
+            self.signature = signature
 
     def to_bytes(self):
         """

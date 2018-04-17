@@ -106,3 +106,18 @@ class TestBasicRouter(unittest.TestCase):
             assert route in router1.routes
             assert router1.routes[route] == '2.2.2.2'
         assert router1.routes['2.2.2.2'] == '2.2.2.2'
+
+    def test_json_encoding(self):
+        packet = BBBPacket('2.2.2.2', '3.3.3.3', BBBPacketType.FLOOD, 'memes', 0)
+        packet_bytes = packet.to_bytes()
+        packet_redux = BBBPacket.from_bytes(packet_bytes)
+
+        assert packet.__dict__ == packet_redux.__dict__
+
+        router1 = BasicRouter('1.1.1.1', test=True)
+        router1.sign(packet)
+
+        packet_bytes = packet.to_bytes()
+        packet_redux = BBBPacket.from_bytes(packet_bytes)
+
+        assert packet.__dict__ == packet_redux.__dict__

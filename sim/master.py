@@ -2,7 +2,7 @@ import socket
 import json
 from os.path import join as path_join
 from time import sleep
-from base import (
+from sim.base import (
     BBBPacket, BBBPacketType,
     ROUTER_PORT
 )
