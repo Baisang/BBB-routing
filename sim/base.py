@@ -20,11 +20,11 @@ class BBBPacketType(Enum):
     Enum for different BBBPacket types
     MASTERCONFIG:   Packet from MASTER configuring network topology
     ROUTEUPDATE:    Updates about network topology
-    PAYLOAD:        payload string, sent after a ROUTESETUP
+    FLOOD:          Data packet sent using robust flooding
     """
     MASTERCONFIG = 0
     ROUTEUPDATE = 1
-    PAYLOAD = 2
+    FLOOD = 2
 
 PUBLIC_ENUMS = {
     'BBBPacketType': BBBPacketType

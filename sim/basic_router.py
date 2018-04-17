@@ -2,6 +2,7 @@ from sim.base import (
     BBBPacket, BBBPacketType, RouterBase,
     PACKET_LEN, ROUTER_PORT, DEBUG
 )
+import binascii
 import socket
 import threading
 import time
@@ -51,9 +52,9 @@ class BasicRouter(RouterBase):
         try:
             # Send command, format: send <ip> <cnt>
             # Simply sends <cnt> packets to <ip> from this router
-            if cli_input_tokens[0] == "send":
+            if cli_input_tokens[0] == "flood":
                 address, count = cli_input_tokens[1:]
-                threading.Thread(target=self.send_hello(address, count)).start()
+                threading.Thread(target=self.send_hello_flood(address, count)).start()
             else:
                 raise Exception()
         except Exception as e:
@@ -65,6 +66,7 @@ class BasicRouter(RouterBase):
         Implements Split Horizon to avoid Count-to-Infinity problems.
         """
         while True:
+            seq_num = 0
             # Calculate a dictionary where each key is the ip of a neighbor
             # and the value is a list of all the destinations we should display
             # format: {neighbor_ip: [dst_ip]}
@@ -97,10 +99,11 @@ class BasicRouter(RouterBase):
                         dst=neighbor,
                         type=BBBPacketType.ROUTEUPDATE,
                         payload=json.dumps(routes),
-                        seq=0,
-                        signature=""
+                        seq=seq_num,
                     )
+                    self.sign(route_packet)
                     neighbor_socket.sendall(route_packet.to_bytes())
+                    seq_num += 1
             time.sleep(10)
 
 
@@ -148,7 +151,7 @@ class BasicRouter(RouterBase):
         src_public_key = self.keys[packet.src]
         verifier = pss.new(src_public_key)
         try:
-            verifier.verify(h, packet.signature)
+            verifier.verify(h, binascii.a2b_base64(packet.signature))
             # We can verify the packet, so add the sqn number to our buffer
             self.buffer_lock.acquire()
             self.sqn_numbers[packet.src] = packet.seq
@@ -168,12 +171,13 @@ class BasicRouter(RouterBase):
 
         verifier = pss.new(self.packet_key)
         signature = verifier.sign(h)
-        packet.signature = signature
+        packet.signature = binascii.b2a_base64(signature).decode('utf-8')
 
     def handle_masterconfig(self, packet):
         """Handles MASTERCONFIG packets
         A masterconfig packet causes a router to add hosts, update routes,
         and add neighbors.
+        Since these are purely for simulation purposes, no need to verify
         """
         config = json.loads(packet.payload)
         for host in config["hosts"]:
@@ -185,20 +189,25 @@ class BasicRouter(RouterBase):
         """Handles ROUTEUPDATE packets
         A ROUTEUPDATE packet causes a router to update its routes and neighbors.
         """
+        if not self.verify(packet):
+            return
         for dst in json.loads(packet.payload):
             self.routes[dst] = packet.src
             self.neighbors.add(packet.src)
         self.routes[packet.src] = packet.src
 
-    def handle_payload(self, packet, address):
-        """Handles PAYLOAD packets
-        A payload packet is destined for this Router simply "accept it".
+    def handle_flood(self, packet, address):
+        """Handles FLOOD packets
+        A FLOOD packet is basically a data packet, but using robust flooding.
+        If the packet is destined for this Router simply "accept it".
         Otherwise attempt to flood it out of all links except for the link that
         the packet came in on.
         """
-        if packet.dst == self.ip_address or self.routes[packet.dst] == None:
+        if not self.verify(packet):
             return
-
+        if packet.dst == self.ip_address:
+            print(packet.payload)
+            return
         for neighbor in self.neighbors:
             if neighbor != address[0]:
                 neighbor_socket = self.sockets[neighbor]
@@ -216,8 +225,8 @@ class BasicRouter(RouterBase):
             self.handle_masterconfig(packet)
         elif packet.type == BBBPacketType.ROUTEUPDATE:
             self.handle_routeupdate(packet)
-        elif packet.type == BBBPacketType.PAYLOAD:
-            self.handle_payload(packet, address)
+        elif packet.type == BBBPacketType.FLOOD:
+            self.handle_flood(packet, address)
         else:
             raise Exception("Unsupported BBBPacketType")
 
@@ -245,21 +254,23 @@ class BasicRouter(RouterBase):
                 client_socket.close()
                 return False
 
-    def send_hello(self, address, count):
+    def send_hello_flood(self, address, count):
         """Function to simply send a packet with hello string as its payload.
         Invoked via CLI.
         """
         for i in range(int(count)):
+            seq_num = 0
             if address in self.routes:
                 packet = BBBPacket(
                     src=self.ip_address,
                     dst=address,
-                    type=BBBPacketType.PAYLOAD,
+                    type=BBBPacketType.FLOOD,
                     payload="hello-{0}".format(i),
-                    seq=0,
-                    signature=""
+                    seq=seq_num,
                 )
+                self.sign(packet)
                 self.sockets[self.routes[address]].sendall(packet.to_bytes())
+                seq_num += 1
             time.sleep(10)
 
     def print_diagnostics(self):
