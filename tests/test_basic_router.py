@@ -135,3 +135,7 @@ class TestBasicRouter(unittest.TestCase):
         packet_redux = BBBPacket.from_bytes(packet_bytes)
 
         assert packet.__dict__ == packet_redux.__dict__
+        router1.keys['2.2.2.2'] = router1.packet_key.publickey()
+        assert router1.verify(packet_redux)
+        router1.sqn_numbers['2.2.2.2'] = -1
+        assert router1.verify(packet)

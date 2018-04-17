@@ -151,6 +151,10 @@ class BasicRouter(RouterBase):
         del copy.signature
         serialization = copy.to_bytes()
         h = SHA256.new(serialization)
+        print('Verifying packet from {} with hash:'.format(packet.src))
+        print(h.hexdigest())
+        print('Verifying packet with signature:')
+        print(packet.signature)
 
         # Get public key of source
         if packet.src not in self.keys:
@@ -179,13 +183,16 @@ class BasicRouter(RouterBase):
         """
         Signs a packet. This modifies packet by adding a signature attribute
         """
-        copy = deepcopy(packet)
-        serialization = copy.to_bytes()
+        serialization = packet.to_bytes()
         h = SHA256.new(serialization)
 
         verifier = pss.new(self.packet_key)
         signature = verifier.sign(h)
         packet.signature = binascii.b2a_base64(signature).decode('utf-8')
+        print('Sending packet to {} with hash:'.format(packet.dst))
+        print(h.hexdigest())
+        print('Sending packet with signature:')
+        print(packet.signature)
 
     def handle_masterconfig(self, packet):
         """Handles MASTERCONFIG packets
