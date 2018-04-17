@@ -194,6 +194,8 @@ class BasicRouter(RouterBase):
             self.routes[host] = None
         self.hosts = config['hosts']
         self.neighbors = self.neighbors.union(config["neighbors"])
+        for n in self.neighbors:
+            self.routes[n] = n
 
     def handle_routeupdate(self, packet):
         """Handles ROUTEUPDATE packets
