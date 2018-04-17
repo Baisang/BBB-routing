@@ -131,6 +131,10 @@ class BasicRouter(RouterBase):
             - Fail safe, in case we don't have a key
         """
 
+        # For now, auto-verify masterconfigs
+        if packet.type == BBBPacketType.MASTERCONFIG:
+            return True
+
         # Check if the packet has a sequence number greater than the the last
         # seen sequence number for that sender.
         self.buffer_lock.acquire()
@@ -195,8 +199,6 @@ class BasicRouter(RouterBase):
         """Handles ROUTEUPDATE packets
         A ROUTEUPDATE packet causes a router to update its routes and neighbors.
         """
-        if not self.verify(packet):
-            return
         for dst in json.loads(packet.payload):
             self.routes[dst] = packet.src
             self.neighbors.add(packet.src)
@@ -209,8 +211,6 @@ class BasicRouter(RouterBase):
         Otherwise attempt to flood it out of all links except for the link that
         the packet came in on.
         """
-        if not self.verify(packet):
-            return
         if packet.dst == self.ip_address or packet.dst in self.hosts:
             print(packet.payload)
             return

@@ -103,6 +103,7 @@ class RouterBase(object):
         self.keys = {}          # ip: packet_public_key
         self.sqn_numbers = {}   # ip: most recent sequence number received
         self.neighbors = set()  # ip addresses of neighbors
+        self.hosts = []         # any hosts attached to this router
         self.buffer_lock = Lock()
 
         # For unit tests
