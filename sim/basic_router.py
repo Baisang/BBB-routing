@@ -148,6 +148,12 @@ class BasicRouter(RouterBase):
         h = SHA256.new(serialization)
 
         # Get public key of source
+        if packet.src not in self.keys:
+            # Query BigchainDB
+            query = self.bdb.assets.get(search=packet.src, limit=1)
+            # Replace this with fail silent?
+            assert query[0]['data']['ip_address'] == packet.src
+            self.keys[packet.src] = query[0]['data']['public_key']
         src_public_key = self.keys[packet.src]
         verifier = pss.new(src_public_key)
         try:
@@ -180,9 +186,9 @@ class BasicRouter(RouterBase):
         Since these are purely for simulation purposes, no need to verify
         """
         config = json.loads(packet.payload)
-        for host in config["hosts"]:
+        for host in config['hosts']:
             self.routes[host] = None
-        self.hosts = config["hosts"]
+        self.hosts = config['hosts']
         self.neighbors = self.neighbors.union(config["neighbors"])
 
     def handle_routeupdate(self, packet):
@@ -205,7 +211,7 @@ class BasicRouter(RouterBase):
         """
         if not self.verify(packet):
             return
-        if packet.dst == self.ip_address:
+        if packet.dst == self.ip_address or packet.dst in self.hosts:
             print(packet.payload)
             return
         for neighbor in self.neighbors:
