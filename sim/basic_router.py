@@ -155,7 +155,8 @@ class BasicRouter(RouterBase):
         # Get public key of source
         if packet.src not in self.keys:
             # Query BigchainDB
-            query = self.bdb.assets.get(search=packet.src, limit=1)
+            query = self.bdb.assets.get(search=packet.src)
+            print('Queried public keys:' + query)
             # Replace this with fail silent?
             assert query[0]['data']['ip_address'] == packet.src
             self.keys[packet.src] = RSA.import_key(query[0]['data']['public_key'].encode())
