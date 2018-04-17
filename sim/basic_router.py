@@ -157,7 +157,7 @@ class BasicRouter(RouterBase):
             query = self.bdb.assets.get(search=packet.src, limit=1)
             # Replace this with fail silent?
             assert query[0]['data']['ip_address'] == packet.src
-            self.keys[packet.src] = query[0]['data']['public_key']
+            self.keys[packet.src] = RSA.import_key(query[0]['data']['public_key'].encode())
         src_public_key = self.keys[packet.src]
         verifier = pss.new(src_public_key)
         try:
