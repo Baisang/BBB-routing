@@ -104,7 +104,7 @@ def bootstrap(num_machines):
         # Start bigchaindb on primary
         run_parallel_command(
                 primary,
-                '{} -f {} up -d bdb'.format(docker_compose, docker_compose.yml),
+                '{} -f {} up -d bdb'.format(docker_compose, docker_compose_yml),
         )
         # Add replicas on primary
         run_parallel_command(
@@ -132,11 +132,11 @@ def cleanup(hosts):
     )
     run_parallel_command(
         hosts,
-        '{} -vsf {} rm bdb'.format(docker_compose, docker_compose.yml),
+        '{} -vsf {} rm bdb'.format(docker_compose, docker_compose_yml),
     )
     run_parallel_command(
         hosts,
-        '{} -vsf {} rm mdb'.format(docker_compose, docker_compose.yml),
+        '{} -vsf {} rm mdb'.format(docker_compose, docker_compose_yml),
     )
     run_parallel_command(
         hosts,
