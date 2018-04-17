@@ -95,6 +95,9 @@ def bootstrap(num_machines):
         '{} -f {} up -d mdb'.format(docker_compose, docker_compose_yml),
     )
 
+    # Sleep like 15 seconds to allow mongod to start up
+    time.sleep(15)
+
     # If multiple nodes, establish primary/replica
     if num_machines >= 3:
         primary = hosts[:1]
