@@ -11,6 +11,7 @@ import sys
 from copy import deepcopy
 from Crypto.Signature import pss
 from Crypto.Hash import SHA256
+from Crypto.PublicKey import RSA
 from pprint import pprint
 
 
