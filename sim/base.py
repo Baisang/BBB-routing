@@ -63,7 +63,7 @@ class BBBPacket(object):
         """
         Constructor for a BBBPacket
         @src                    address of source
-        @dest                   address of destination
+        @dst                   address of destination
         @type BBBPacketType     A BBBPacket Type
         @payload                string payload
         @seq                    sequence number

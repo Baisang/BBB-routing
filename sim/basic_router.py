@@ -255,7 +255,7 @@ class BasicRouter(RouterBase):
                     raise Exception('Client disconnected')
 
                 packet = BBBPacket.from_bytes(data)
-                print('Recvd Packet: {} {} {} {}'.format(packet.type, packet.src, packet.dest, packet.payload))
+                print('Recvd Packet: {} {} {} {}'.format(packet.type, packet.src, packet.dst, packet.payload))
                 if self.verify(packet):
                     self.handle_packet(packet, address)
 
