@@ -1,7 +1,9 @@
 import select
 import socket
 import sys
+import threading
 import json
+from threading import Lock
 from Crypto.PublicKey import RSA
 from bigchaindb_driver import BigchainDB
 from bigchaindb_driver.crypto import CryptoKeypair
@@ -101,6 +103,7 @@ class RouterBase(object):
         self.keys = {}          # ip: packet_public_key
         self.sqn_numbers = {}   # ip: most recent sequence number received
         self.neighbors = set()  # ip addresses of neighbors
+        self.buffer_lock = Lock()
 
         # For unit tests
         self.test = test

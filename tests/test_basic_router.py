@@ -4,11 +4,12 @@ from sim.base import BBBPacket, BBBPacketType, pad, unpad
 from sim.basic_router import BasicRouter
 
 import unittest
+import threading
 
 from Crypto.Signature import pss
 from Crypto.PublicKey import RSA
 
-class TestBasicRouterCrypto(unittest.TestCase):
+class TestBasicRouter(unittest.TestCase):
 
     def test_simple_sign_verify(self):
         router = BasicRouter('1.1.1.1', test=True)
@@ -43,3 +44,4 @@ class TestBasicRouterCrypto(unittest.TestCase):
         packet3 = BBBPacket('1.1.1.1', '2.2.2.2', BBBPacketType.PAYLOAD, padded_message, 1)
         router.sign(packet3)
         assert router.verify(packet3)
+

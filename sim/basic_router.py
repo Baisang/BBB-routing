@@ -130,8 +130,11 @@ class BasicRouter(RouterBase):
 
         # Check if the packet has a sequence number greater than the the last
         # seen sequence number for that sender.
+        self.buffer_lock.acquire()
         if packet.src in self.sqn_numbers and packet.seq <= self.sqn_numbers[packet.src]:
+            self.buffer_lock.release()
             return False
+        self.buffer_lock.release()
         if not packet.signature:
             return False
 
@@ -147,8 +150,9 @@ class BasicRouter(RouterBase):
         try:
             verifier.verify(h, packet.signature)
             # We can verify the packet, so add the sqn number to our buffer
-            # TODO: make this thread safe
+            self.buffer_lock.acquire()
             self.sqn_numbers[packet.src] = packet.seq
+            self.buffer_lock.release()
         except Exception as e:
             print(e)
             return False
