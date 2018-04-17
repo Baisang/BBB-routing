@@ -8,7 +8,7 @@ from base import (
 )
 
 
-TOPO_DIRECTORY = "topologies"
+TOPO_DIRECTORY = "sim/topologies"
 TOPO_UPDATE_PERIOD = 5
 
 class Master(object):
@@ -21,6 +21,7 @@ class Master(object):
         @topo_path      name of the topology file to parse
         """
         self.sockets = {}
+        seq_num = 0
 
         # Load the network topology from the json file
         self.topology = {}
@@ -46,11 +47,11 @@ class Master(object):
                     dst=host,
                     type=BBBPacketType.MASTERCONFIG,
                     payload=json.dumps(config),
-                    seq=0,
-                    signature=""
+                    seq=seq_num,
                 )
                 host_socket.sendall(config_packet.to_bytes())
+                seq_num += 1
             sleep(TOPO_UPDATE_PERIOD)
 
 if __name__ == "__main__":
-    Master()
+    Master(topo_path = 'acid-arsenic-asteroid.json')
