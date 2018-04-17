@@ -82,7 +82,8 @@ class BBBPacket(object):
         """
         json_serialization = json.dumps(
             vars(self),
-            cls=BBBPacketEncoder
+            cls=BBBPacketEncoder,
+            sort_keys=True,
         )
         return pad(json_serialization).encode()
 

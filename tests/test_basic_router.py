@@ -139,3 +139,4 @@ class TestBasicRouter(unittest.TestCase):
         assert router1.verify(packet_redux)
         router1.sqn_numbers['2.2.2.2'] = -1
         assert router1.verify(packet)
+
