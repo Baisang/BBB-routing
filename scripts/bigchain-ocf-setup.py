@@ -107,6 +107,8 @@ def bootstrap(num_machines):
                 '{} -f {} run bdb add-replicas {}'.format(docker_compose, docker_compose_yml, replica_args),
         )
 
+    # Sleep like 15 seconds to let this process work out
+    time.sleep(15)
     # Start bigchaindb on all hosts
     run_parallel_command(
         hosts,
@@ -122,6 +124,14 @@ def cleanup(hosts):
     run_parallel_command(
         hosts,
         '{} -f {} stop bdb'.format(docker_compose, docker_compose_yml),
+    )
+    run_parallel_command(
+        hosts,
+        '{} -vsf {} rm bdb'.format(docker_compose, docker_compose.yml),
+    )
+    run_parallel_command(
+        hosts,
+        '{} -vsf {} rm mdb'.format(docker_compose, docker_compose.yml),
     )
     run_parallel_command(
         hosts,
