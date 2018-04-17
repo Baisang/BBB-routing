@@ -13,6 +13,7 @@ We support installations on Debian Stretch, but this should all work on other De
   - `libssl-dev`
   - `python3-pip`
   - `docker` - [installation instructions](https://docs.docker.com/install/linux/docker-ce/debian/)
+  - `libcrack2-dev`
 
 All should be install-able from `apt` or through other instructions linked.
 
