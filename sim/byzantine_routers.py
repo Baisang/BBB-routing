@@ -16,6 +16,6 @@ class FaultyFloodingRouter(BasicRouter):
 
 if __name__ == "__main__":
     if len(sys.argv) == 2:
-        BasicRouter(sys.argv[1])
+        FaultyFloodingRouter(sys.argv[1])
     else:
-        print("please run python3 -m sim.basic_router <local-IP>")
+        print("please run python3 -m sim.byzantine_routers <local-IP>")
