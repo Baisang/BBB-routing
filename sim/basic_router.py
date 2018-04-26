@@ -268,7 +268,7 @@ class BasicRouter(RouterBase):
         """
         for i in range(int(count)):
             seq_num = 0
-            if address in self.routes:
+            for address in self.neighbors:
                 packet = BBBPacket(
                     src=self.ip_address,
                     dst=address,
@@ -277,7 +277,7 @@ class BasicRouter(RouterBase):
                     seq=seq_num,
                 )
                 self.sign(packet)
-                self.sockets[self.routes[address]].sendall(packet.to_bytes())
+                self.sockets[address].sendall(packet.to_bytes())
                 seq_num += 1
             time.sleep(10)
 
