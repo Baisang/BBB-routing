@@ -138,44 +138,42 @@ class BasicRouter(RouterBase):
 
         # Check if the packet has a sequence number greater than the the last
         # seen sequence number for that sender.
-        self.buffer_lock.acquire()
-        print(packet.type)
-        print(packet.type.name)
-        if (packet.src in self.sqn_numbers and
-                packet.seq <= self.sqn_numbers[packet.src][BBBPacketType(packet.type).name]):
-            self.buffer_lock.release()
-            return False
-        self.buffer_lock.release()
-        if not packet.signature:
-            return False
-
-        # Check the signature included in the packet
-        copy = deepcopy(packet)
-        del copy.signature
-        serialization = copy.to_bytes()
-        h = SHA256.new(serialization)
-
-        # Get public key of source
-        if packet.src not in self.keys:
-            # Query BigchainDB
-            query = self.bdb.assets.get(search=packet.src)
-            # Replace this with fail silent?
-            assert query[0]['data']['ip_address'] == packet.src
-            self.keys[packet.src] = RSA.import_key(query[0]['data']['public_key'].encode())
-        src_public_key = self.keys[packet.src]
-        verifier = pss.new(src_public_key)
         try:
+            self.buffer_lock.acquire()
+            if (packet.src in self.sqn_numbers and
+                    BBBPacketType(packet.type).name in self.sqn_numbers[packet.src] and
+                    packet.seq <= self.sqn_numbers[packet.src][BBBPacketType(packet.type).name]):
+                return False
+            if not packet.signature:
+                return False
+
+            # Check the signature included in the packet
+            copy = deepcopy(packet)
+            del copy.signature
+            serialization = copy.to_bytes()
+            h = SHA256.new(serialization)
+
+            # Get public key of source
+            if packet.src not in self.keys:
+                # Query BigchainDB
+                query = self.bdb.assets.get(search=packet.src)
+                # Replace this with fail silent?
+                assert query[0]['data']['ip_address'] == packet.src
+                self.keys[packet.src] = RSA.import_key(query[0]['data']['public_key'].encode())
+            src_public_key = self.keys[packet.src]
+            verifier = pss.new(src_public_key)
             verifier.verify(h, binascii.a2b_base64(packet.signature))
             # We can verify the packet, so add the sqn number to our buffer
-            self.buffer_lock.acquire()
             if packet.src not in self.sqn_numbers:
                 self.sqn_numbers[packet.src] = {}
             self.sqn_numbers[packet.src][BBBPacketType(packet.type).name] = packet.seq
-            self.buffer_lock.release()
+            return True
         except Exception as e:
             print(e)
             return False
-        return True
+        finally:
+            self.buffer_lock.release()
+
 
     def sign(self, packet):
         """

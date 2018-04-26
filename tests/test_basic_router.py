@@ -147,5 +147,28 @@ class TestBasicRouter(unittest.TestCase):
         router1.sqn_numbers['2.2.2.2'] = { BBBPacketType.FLOOD.name: -1 }
         assert router1.verify(packet)
 
+    def test_sqn_numbers(self):
+        router1 = BasicRouter('1.1.1.1', test=True)
+        router2 = BasicRouter('2.2.2.2', test=True)
+
+        routes = ['3.3.3.3', '4.4.4.4', '5.5.5.5']
+
+        route_packet = BBBPacket(
+            '2.2.2.2',
+            '1.1.1.1',
+            BBBPacketType.ROUTEUPDATE,
+            json.dumps(routes),
+            0,
+        )
+
+        router2.sign(route_packet)
+
+        router1.keys['2.2.2.2'] = router2.packet_key.publickey()
+        assert router1.verify(route_packet)
+
+        message = 'hello world'
+        packet = BBBPacket('2.2.2.2', '1.1.1.1', BBBPacketType.FLOOD, message, 0)
+        router2.sign(packet)
+        assert router1.verify(packet)
 
 
