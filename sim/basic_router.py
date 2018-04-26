@@ -277,20 +277,19 @@ class BasicRouter(RouterBase):
         Invoked via CLI.
         """
         for i in range(int(count)):
-            seq_num = 0
             for address in self.neighbors:
                 packet = BBBPacket(
                     src=self.ip_address,
                     dst=dst,
                     type=BBBPacketType.FLOOD,
                     payload="hello-{0}".format(i),
-                    seq=seq_num,
+                    seq=self.hello_sqn,
                 )
                 self.sign(packet)
                 self.socket_lock.acquire()
                 self.sockets[address].sendall(packet.to_bytes())
                 self.socket_lock.release()
-                seq_num += 1
+                self.hello_sqn += 1
             time.sleep(10)
 
     def print_diagnostics(self):

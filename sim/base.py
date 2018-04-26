@@ -109,6 +109,7 @@ class RouterBase(object):
         self.hosts = []         # any hosts attached to this router
         self.buffer_lock = Lock()
         self.socket_lock = Lock()
+        self.hello_sqn = 0
 
         # For unit tests
         self.test = test
