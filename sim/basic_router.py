@@ -67,7 +67,6 @@ class BasicRouter(RouterBase):
         Implements Split Horizon to avoid Count-to-Infinity problems.
         """
         while True:
-            seq_num = 0
             # Calculate a dictionary where each key is the ip of a neighbor
             # and the value is a list of all the destinations we should display
             # format: {neighbor_ip: [dst_ip]}
@@ -95,18 +94,20 @@ class BasicRouter(RouterBase):
                         ).start()
 
                     # Create and send appropriate route packet for neighbor
+                    self.sqn_lock.acquire()
                     route_packet = BBBPacket(
                         src=self.ip_address,
                         dst=neighbor,
                         type=BBBPacketType.ROUTEUPDATE,
                         payload=json.dumps(routes),
-                        seq=seq_num,
+                        seq=self.sqn_counter,
                     )
+                    self.sqn_counter += 1
+                    self.sqn_lock.release()
                     self.sign(route_packet)
                     self.socket_lock.acquire()
                     neighbor_socket.sendall(route_packet.to_bytes())
                     self.socket_lock.release()
-                    seq_num += 1
             time.sleep(30)
 
 
@@ -142,9 +143,7 @@ class BasicRouter(RouterBase):
         # seen sequence number for that sender.
         try:
             self.buffer_lock.acquire()
-            if (packet.src in self.sqn_numbers and
-                    BBBPacketType(packet.type).name in self.sqn_numbers[packet.src] and
-                    packet.seq <= self.sqn_numbers[packet.src][BBBPacketType(packet.type).name]):
+            if packet.src in self.sqn_numbers and packet.seq <= self.sqn_numbers[packet.src]:
                 return False
             if not packet.signature:
                 return False
@@ -166,9 +165,7 @@ class BasicRouter(RouterBase):
             verifier = pss.new(src_public_key)
             verifier.verify(h, binascii.a2b_base64(packet.signature))
             # We can verify the packet, so add the sqn number to our buffer
-            if packet.src not in self.sqn_numbers:
-                self.sqn_numbers[packet.src] = {}
-            self.sqn_numbers[packet.src][BBBPacketType(packet.type).name] = packet.seq
+            self.sqn_numbers[packet.src] = packet.seq
             return True
         except Exception as e:
             print(e)
@@ -278,18 +275,20 @@ class BasicRouter(RouterBase):
         """
         for i in range(int(count)):
             for address in self.neighbors:
+                self.sqn_lock.acquire()
                 packet = BBBPacket(
                     src=self.ip_address,
                     dst=dst,
                     type=BBBPacketType.FLOOD,
                     payload="hello-{0}".format(i),
-                    seq=self.hello_sqn,
+                    seq=self.sqn_counter,
                 )
+                self.sqn_counter += 1
+                self.sqn_lock.release()
                 self.sign(packet)
                 self.socket_lock.acquire()
                 self.sockets[address].sendall(packet.to_bytes())
                 self.socket_lock.release()
-                self.hello_sqn += 1
             time.sleep(10)
 
     def print_diagnostics(self):
