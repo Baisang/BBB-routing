@@ -262,7 +262,7 @@ class BasicRouter(RouterBase):
                 client_socket.close()
                 return False
 
-    def send_hello_flood(self, address, count):
+    def send_hello_flood(self, dst, count):
         """Function to simply send a packet with hello string as its payload.
         Invoked via CLI.
         """
@@ -271,7 +271,7 @@ class BasicRouter(RouterBase):
             for address in self.neighbors:
                 packet = BBBPacket(
                     src=self.ip_address,
-                    dst=address,
+                    dst=dst,
                     type=BBBPacketType.FLOOD,
                     payload="hello-{0}".format(i),
                     seq=seq_num,
