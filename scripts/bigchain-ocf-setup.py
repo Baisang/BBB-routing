@@ -145,6 +145,10 @@ def cleanup(hosts):
         hosts,
         'rm -rf ~/BBB-routing',
     )
+    run_parallel_command(
+        hosts,
+        'docker rm -f (docker ps -a -q)',
+    )
 
 
 def up(args):
