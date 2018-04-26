@@ -9,7 +9,7 @@ from sim.base import (
 
 
 TOPO_DIRECTORY = "sim/topologies"
-TOPO_UPDATE_PERIOD = 5
+TOPO_UPDATE_PERIOD = 30
 
 class Master(object):
     """Master Node.
@@ -54,4 +54,4 @@ class Master(object):
             sleep(TOPO_UPDATE_PERIOD)
 
 if __name__ == "__main__":
-    Master(topo_path = 'acid-arsenic-asteroid.json')
+    Master(topo_path = 'basic-byzantine.json')

@@ -105,7 +105,7 @@ class BasicRouter(RouterBase):
                     self.sign(route_packet)
                     neighbor_socket.sendall(route_packet.to_bytes())
                     seq_num += 1
-            time.sleep(10)
+            time.sleep(30)
 
 
     def accept_connections(self):
