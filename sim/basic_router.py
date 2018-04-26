@@ -218,6 +218,7 @@ class BasicRouter(RouterBase):
             return
         for neighbor in self.neighbors:
             if neighbor != address[0]:
+                print('Sending FLOOD packet to neighbor {}'.format(neighbor))
                 neighbor_socket = self.sockets[neighbor]
                 neighbor_socket.sendall(packet.to_bytes())
 
@@ -255,6 +256,8 @@ class BasicRouter(RouterBase):
                 print('Received packet from {} destined to {} of type {}'.format(
                     packet.src, packet.dst, packet.type))
                 if self.verify(packet):
+                    print('Verified packet from {} destined to {} of type {}'.format(
+                        packet.src, packet.dst, packet.type))
                     self.handle_packet(packet, address)
 
             except Exception as e:
