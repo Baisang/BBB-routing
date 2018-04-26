@@ -151,21 +151,14 @@ class BasicRouter(RouterBase):
         del copy.signature
         serialization = copy.to_bytes()
         h = SHA256.new(serialization)
-        print('Verifying packet from {} with hash:'.format(packet.src))
-        print(h.hexdigest())
-        print('Verifying packet with signature:')
-        print(packet.signature)
 
         # Get public key of source
         if packet.src not in self.keys:
             # Query BigchainDB
             query = self.bdb.assets.get(search=packet.src)
-            print('Queried public keys:')
-            print(query)
             # Replace this with fail silent?
             assert query[0]['data']['ip_address'] == packet.src
             self.keys[packet.src] = RSA.import_key(query[0]['data']['public_key'].encode())
-            print(self.keys)
         src_public_key = self.keys[packet.src]
         verifier = pss.new(src_public_key)
         try:
@@ -189,10 +182,6 @@ class BasicRouter(RouterBase):
         verifier = pss.new(self.packet_key)
         signature = verifier.sign(h)
         packet.signature = binascii.b2a_base64(signature).decode('utf-8')
-        print('Sending packet to {} with hash:'.format(packet.dst))
-        print(h.hexdigest())
-        print('Sending packet with signature:')
-        print(packet.signature)
 
     def handle_masterconfig(self, packet):
         """Handles MASTERCONFIG packets
@@ -225,7 +214,7 @@ class BasicRouter(RouterBase):
         the packet came in on.
         """
         if packet.dst == self.ip_address or packet.dst in self.hosts:
-            print(packet.payload)
+            print('Received FLOOD packet destined for this router: {}'.format(packet.payload))
             return
         for neighbor in self.neighbors:
             if neighbor != address[0]:
@@ -263,11 +252,10 @@ class BasicRouter(RouterBase):
                     raise Exception('Client disconnected')
 
                 packet = BBBPacket.from_bytes(data)
-                print('Recvd Packet: {} {} {} {}'.format(packet.type, packet.src, packet.dst, packet.payload))
+                print('Received packet from {} destined to {} of type {}'.format(
+                    packet.src, packet.dst, packet.type))
                 if self.verify(packet):
                     self.handle_packet(packet, address)
-
-                self.print_diagnostics()
 
             except Exception as e:
                 print(e)
