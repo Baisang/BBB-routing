@@ -103,7 +103,9 @@ class BasicRouter(RouterBase):
                         seq=seq_num,
                     )
                     self.sign(route_packet)
+                    self.socket_lock.acquire()
                     neighbor_socket.sendall(route_packet.to_bytes())
+                    self.socket_lock.release()
                     seq_num += 1
             time.sleep(30)
 
@@ -223,7 +225,9 @@ class BasicRouter(RouterBase):
             if neighbor != address[0]:
                 print('Sending FLOOD packet to neighbor {}'.format(neighbor))
                 neighbor_socket = self.sockets[neighbor]
+                self.socket_lock.acquire()
                 neighbor_socket.sendall(packet.to_bytes())
+                self.socket_lock.release()
 
     def handle_packet(self, packet, address):
         """Main packet handler.
@@ -283,7 +287,9 @@ class BasicRouter(RouterBase):
                     seq=seq_num,
                 )
                 self.sign(packet)
+                self.socket_lock.acquire()
                 self.sockets[address].sendall(packet.to_bytes())
+                self.socket_lock.release()
                 seq_num += 1
             time.sleep(10)
 

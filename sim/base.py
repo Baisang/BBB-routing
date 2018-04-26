@@ -108,6 +108,7 @@ class RouterBase(object):
         self.neighbors = set()  # ip addresses of neighbors
         self.hosts = []         # any hosts attached to this router
         self.buffer_lock = Lock()
+        self.socket_lock = Lock()
 
         # For unit tests
         self.test = test
