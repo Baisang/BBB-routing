@@ -55,7 +55,7 @@ pysnmp==4.4.4
 python-rapidjson==0.0.11
 python-rapidjson-schema==0.1.1
 pytz==2018.3
-PyYAML==3.12
+PyYAML==5.1
 redis==2.10.6
 requests==2.18.4
 rethinkdb==2.3.0.post6
