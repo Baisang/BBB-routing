@@ -37,7 +37,7 @@ multidict==4.1.0
 multipipes==0.1.0
 ocflib==2018.4.14.21.46
 parallel-ssh==1.5.2
-paramiko==2.1.4
+paramiko==2.1.6
 pexpect==4.5.0
 pkg-resources==0.0.0
 ply==3.11
