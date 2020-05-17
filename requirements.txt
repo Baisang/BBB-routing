@@ -19,7 +19,7 @@ docker-compose==1.19.0
 docker-pycreds==0.2.2
 dockerpty==0.4.1
 docopt==0.6.2
-Flask==0.12.2
+Flask==1.0
 Flask-Cors==3.0.3
 Flask-RESTful==0.3.6
 gevent==1.2.2
