@@ -28,7 +28,7 @@ gunicorn==19.7.1
 idna==2.6
 idna-ssl==1.0.1
 itsdangerous==0.24
-Jinja2==2.10
+Jinja2==2.11.3
 jsonschema==2.5.1
 ldap3==2.5
 logstats==0.2.1
